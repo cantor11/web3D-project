@@ -7,9 +7,10 @@ import { DetailDialog25D } from '@/components/modals/DetailDialog25D';
 import { NODE_DETAILS } from '@/data/portfolioData';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
-describe('HUD, ReactiveCursor & DetailDialog25D interactions', () => {
+describe('HUD, Theme Switcher, ReactiveCursor & DetailDialog25D interactions', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '#sobre-mi');
+    document.documentElement.dataset.theme = 'dark';
     usePortfolioStore.setState({
       currentSection: 'sobre-mi',
       targetSection: 'sobre-mi',
@@ -18,6 +19,7 @@ describe('HUD, ReactiveCursor & DetailDialog25D interactions', () => {
       hoveredNodeId: null,
       selectedNodeId: null,
       locale: 'es',
+      theme: 'dark',
     });
 
     HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
@@ -29,7 +31,7 @@ describe('HUD, ReactiveCursor & DetailDialog25D interactions', () => {
     });
   });
 
-  it('renders 5 station navigation controls, switches locale ES/EN, and navigates', () => {
+  it('renders 5 station navigation controls, switches locale ES/EN & dark/light themes, and navigates', () => {
     render(<TopNavHUD />);
 
     expect(screen.getByRole('button', { name: /Experiencia/i })).toBeInTheDocument();
@@ -41,9 +43,26 @@ describe('HUD, ReactiveCursor & DetailDialog25D interactions', () => {
     expect(usePortfolioStore.getState().targetSection).toBe('experiencia');
     expect(window.location.hash).toBe('#experiencia');
 
+    fireEvent.click(screen.getByRole('button', { name: /Cambiar a tema claro/i }));
+    expect(usePortfolioStore.getState().theme).toBe('light');
+    expect(document.documentElement.dataset.theme).toBe('light');
+
     fireEvent.click(screen.getByRole('button', { name: /Cambiar idioma/i }));
     expect(usePortfolioStore.getState().locale).toBe('en');
     expect(screen.getByRole('button', { name: /Experience/i })).toBeInTheDocument();
+  });
+
+  it('opens mobile section drawer cleanly and closes on Escape', () => {
+    render(<TopNavHUD />);
+
+    const drawerBtn = screen.getByRole('button', { name: /Abrir navegación de secciones/i });
+    expect(drawerBtn).toHaveAttribute('aria-expanded', 'false');
+
+    fireEvent.click(drawerBtn);
+    expect(drawerBtn).toHaveAttribute('aria-expanded', 'true');
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(drawerBtn).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('opens Uplanner, GSS, and 10-item Certifications 2.5D modal cards with real CV achievements', () => {

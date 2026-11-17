@@ -19,6 +19,7 @@ describe('Portfolio spatial configuration & state machine', () => {
       hoveredNodeId: null,
       selectedNodeId: null,
       locale: 'es',
+      theme: 'dark',
     });
   });
 
@@ -65,7 +66,7 @@ describe('Portfolio spatial configuration & state machine', () => {
     expect(usePortfolioStore.getState().currentSection).toBe('proyectos');
   });
 
-  it('maps hash routes and bilingual CV details accurately', () => {
+  it('maps hash routes, bilingual CV details, and contains zero em dashes (R-02)', () => {
     expect(getStationFromHash('#experiencia')).toBe('experiencia');
     expect(getStationFromHash('#invalid')).toBeNull();
 
@@ -74,7 +75,14 @@ describe('Portfolio spatial configuration & state machine', () => {
     expect(NODE_DETAILS['uplanner-rack'].highlights.es.join(' ')).toContain('Airflow');
     expect(NODE_DETAILS['gss-mobile'].highlights.es.join(' ')).toContain('REST');
 
+    const serializedData = JSON.stringify({ PROFILE, STATIONS, NODE_DETAILS });
+    expect(serializedData).not.toContain('\u2014');
+
     usePortfolioStore.getState().toggleLocale();
     expect(usePortfolioStore.getState().locale).toBe('en');
+
+    usePortfolioStore.getState().toggleTheme();
+    expect(usePortfolioStore.getState().theme).toBe('light');
+    expect(document.documentElement.dataset.theme).toBe('light');
   });
 });
