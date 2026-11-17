@@ -5,6 +5,7 @@ import { STATIONS } from '@/data/portfolioData';
 import blueprintVert from '@/shaders/blueprintGrid.vert';
 import blueprintFrag from '@/shaders/blueprintGrid.frag';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
+import { withBase } from '@/utils/assetUrl';
 
 const CAMPUS_HUB: [number, number, number] = [0, 0.012, 0];
 const CUBEMAP_FILES = ['px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png'];
@@ -59,10 +60,10 @@ export function PortfolioStaging() {
   const stageBg = isDark ? '#11100e' : '#eae5da';
 
   const stoneTextures = useTexture({
-    map: '/textures/pbr/stone-albedo.webp',
-    normalMap: '/textures/pbr/stone-normal.webp',
-    roughnessMap: '/textures/pbr/stone-roughness.webp',
-    aoMap: '/textures/pbr/stone-ao.webp',
+    map: withBase('textures/pbr/stone-albedo.webp'),
+    normalMap: withBase('textures/pbr/stone-normal.webp'),
+    roughnessMap: withBase('textures/pbr/stone-roughness.webp'),
+    aoMap: withBase('textures/pbr/stone-ao.webp'),
   });
 
   useMemo(() => {
@@ -170,7 +171,7 @@ export function PortfolioStaging() {
       {/* 6-Face Architectural Studio Cubemap IBL (Skyshield staging pattern) */}
       <Environment
         files={CUBEMAP_FILES}
-        path="/cubemap/studio/"
+        path={withBase('cubemap/studio/')}
         background={false}
         environmentIntensity={isDark ? 0.92 : 1.12}
       />
@@ -334,7 +335,7 @@ export function PortfolioStaging() {
   );
 }
 
-useTexture.preload('/textures/pbr/stone-albedo.webp');
-useTexture.preload('/textures/pbr/stone-normal.webp');
-useTexture.preload('/textures/pbr/stone-roughness.webp');
-useTexture.preload('/textures/pbr/stone-ao.webp');
+useTexture.preload(withBase('textures/pbr/stone-albedo.webp'));
+useTexture.preload(withBase('textures/pbr/stone-normal.webp'));
+useTexture.preload(withBase('textures/pbr/stone-roughness.webp'));
+useTexture.preload(withBase('textures/pbr/stone-ao.webp'));

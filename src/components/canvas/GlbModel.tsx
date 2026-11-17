@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import { DRACO_DECODER_PATH } from '@/components/canvas/modelPreload';
 import { INTERACTIVE_LAYER } from '@/hooks/useInteractiveLayer';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
+import { withBase } from '@/utils/assetUrl';
 
 useGLTF.setDecoderPath(DRACO_DECODER_PATH);
 
@@ -26,7 +27,8 @@ export function GlbModel({
   receiveShadow = true,
   interactive = true,
 }: GlbModelProps) {
-  const gltf = useGLTF(url, DRACO_DECODER_PATH);
+  const resolvedUrl = withBase(url);
+  const gltf = useGLTF(resolvedUrl, DRACO_DECODER_PATH);
   const setDracoInitMs = usePortfolioStore((s) => s.setDracoInitMs);
 
   const clonedScene = useMemo(() => {

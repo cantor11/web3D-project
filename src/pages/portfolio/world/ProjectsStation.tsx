@@ -3,6 +3,7 @@ import { GlbModel } from '@/components/canvas/GlbModel';
 import { InteractiveNode } from '@/components/canvas/InteractiveNode';
 import { getStationById } from '@/data/portfolioData';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
+import { withBase } from '@/utils/assetUrl';
 
 export function ProjectsStation() {
   const station = getStationById('proyectos');
@@ -25,7 +26,7 @@ export function ProjectsStation() {
 
       <Text
         position={[0, 2.38, 0]}
-        font="/fonts/Roboto-Bold.ttf"
+        font={withBase('fonts/Roboto-Bold.ttf')}
         fontSize={0.15}
         color={isDark ? '#f3efe6' : '#161513'}
         anchorX="center"

@@ -1,15 +1,16 @@
 {
-  "name": "Junior Orlando Cantor Arévalo · Portafolio Web 3D",
+  "name": "Junior Cantor · Portafolio Web 3D",
   "short_name": "Junior Cantor",
-  "description": "Portafolio Web 3D interactivo de Junior Orlando Cantor Arévalo: Ingeniería de Sistemas, Ingeniería de Datos con Airflow y Polars, Software Full-Stack y WebGL2.",
-  "start_url": "/",
+  "description": "Portafolio interactivo Web 3D de Junior Orlando Cantor Arévalo: Ingeniería de Sistemas, Ingeniería de Datos y Desarrollo Full-Stack.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#11100e",
   "theme_color": "#11100e",
   "lang": "es-CO",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "./favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

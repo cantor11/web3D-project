@@ -8,6 +8,7 @@ import { getStationById } from '@/data/portfolioData';
 import etlPulseFrag from '@/shaders/etlPulse.frag';
 import etlPulseVert from '@/shaders/etlPulse.vert';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
+import { withBase } from '@/utils/assetUrl';
 
 export function ExperienceDiorama() {
   const station = getStationById('experiencia');
@@ -141,7 +142,7 @@ export function ExperienceDiorama() {
 
       <Text
         position={[-1.45, 2.86, -0.15]}
-        font="/fonts/Roboto-Bold.ttf"
+        font={withBase('fonts/Roboto-Bold.ttf')}
         fontSize={0.145}
         color={labelColor}
         anchorX="center"
@@ -152,7 +153,7 @@ export function ExperienceDiorama() {
 
       <Text
         position={[2.15, 2.75, 0.35]}
-        font="/fonts/Roboto-Bold.ttf"
+        font={withBase('fonts/Roboto-Bold.ttf')}
         fontSize={0.14}
         color={labelColor}
         anchorX="center"
