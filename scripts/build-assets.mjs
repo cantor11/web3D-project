@@ -186,9 +186,9 @@ function renderContactCvSvg() {
 
     <text x="58" y="684" fill="#B84A14" font-family="monospace" font-size="14" font-weight="600">CONTACTO DIRECTO</text>
     <text x="58" y="722" fill="#161513" font-family="monospace" font-size="19" font-weight="600">junior.cantor11@gmail.com</text>
-    <text x="58" y="756" fill="#161513" font-family="monospace" font-size="19">+57 302 211 3532</text>
-    <text x="58" y="794" fill="#57524A" font-family="monospace" font-size="15">linkedin.com/in/junior-cantor-arevalo</text>
-    <text x="58" y="824" fill="#57524A" font-family="monospace" font-size="15">github.com/cantor11 · PDF disponible</text>
+    <text x="58" y="758" fill="#57524A" font-family="monospace" font-size="16">linkedin.com/in/junior-cantor-arevalo</text>
+    <text x="58" y="794" fill="#57524A" font-family="monospace" font-size="15">github.com/cantor11 · Remoto / Híbrido</text>
+    <text x="58" y="826" fill="#57524A" font-family="monospace" font-size="14">Teléfono directo y referencias en CV PDF</text>
   </svg>`;
 }
 

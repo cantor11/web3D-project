@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import type { RootState } from '@react-three/fiber';
+import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
 /**
- * Synchronizes R3F viewport size, clamped DPR [1, 2], and camera projection
+ * Synchronizes R3F viewport size, quality-capped DPR, and camera projection
  * matrix within a single animation frame (<= 16ms) with debouncing on resize
  * and mobile orientation changes.
  */
@@ -17,7 +18,9 @@ export function useWindowResize(state: RootState | null, debounceMs = 12): void 
     const applyResize = () => {
       const width = window.innerWidth;
       const height = Math.max(window.innerHeight, 1);
-      const clampedDpr = Math.min(Math.max(window.devicePixelRatio || 1, 1), 2);
+      const preset = usePortfolioStore.getState().qualityPreset;
+      const maxCap = preset === 'performance' ? 1 : preset === 'balanced' ? 1.5 : 2;
+      const clampedDpr = Math.min(Math.max(window.devicePixelRatio || 1, 1), maxCap);
 
       state.setDpr(clampedDpr);
       state.setSize(width, height);

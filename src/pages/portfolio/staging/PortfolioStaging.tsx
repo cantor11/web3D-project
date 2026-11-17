@@ -199,7 +199,7 @@ export function PortfolioStaging() {
           onUpdate={freezeMatrix}
         >
           <planeGeometry args={[90, 90]} />
-          <shadowMaterial transparent opacity={isDark ? 0.42 : 0.24} />
+          <shadowMaterial transparent opacity={isDark ? 0.56 : 0.34} />
         </mesh>
       )}
 

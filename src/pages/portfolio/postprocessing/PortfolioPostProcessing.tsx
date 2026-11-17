@@ -12,7 +12,7 @@ export function PortfolioPostProcessing() {
 
   if (qualityPreset === 'balanced') {
     return (
-      <EffectComposer multisampling={0} autoClear={false}>
+      <EffectComposer key="balanced" multisampling={0}>
         <SMAA />
         <Outline
           blur
@@ -28,21 +28,21 @@ export function PortfolioPostProcessing() {
   }
 
   return (
-    <EffectComposer multisampling={0} autoClear={false}>
+    <EffectComposer key="ultra" multisampling={0}>
       <SMAA />
       <Outline
         blur
-        edgeStrength={3.6}
+        edgeStrength={3.8}
         pulseSpeed={0}
         visibleEdgeColor={isDark ? 0xeb8647 : 0xb84a14}
         hiddenEdgeColor={isDark ? 0x8a4b25 : 0x7a310d}
-        width={550}
+        width={620}
       />
       <Bloom
         mipmapBlur
-        luminanceThreshold={1.32}
-        luminanceSmoothing={0.35}
-        intensity={0.14}
+        luminanceThreshold={1.55}
+        luminanceSmoothing={0.28}
+        intensity={0.12}
       />
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
     </EffectComposer>

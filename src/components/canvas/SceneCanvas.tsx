@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import * as THREE from 'three';
-import { Canvas, type RootState, useFrame } from '@react-three/fiber';
+import { Canvas, type RootState, useFrame, useThree } from '@react-three/fiber';
 import { PerformanceMonitor, Preload } from '@react-three/drei';
 import { Selection } from '@react-three/postprocessing';
 import { INTERACTIVE_LAYER } from '@/hooks/useInteractiveLayer';
@@ -16,12 +16,20 @@ import { useWindowResize } from '@/hooks/useWindowResize';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
 function SceneReadyAndTelemetry() {
+  const { scene, camera } = useThree();
+  const qualityPreset = usePortfolioStore((s) => s.qualityPreset);
   const setAssetReady = usePortfolioStore((s) => s.setAssetReady);
   const setRenderStats = usePortfolioStore((s) => s.setRenderStats);
   const frameCountRef = useRef(0);
   const elapsedRef = useRef(0);
   const initialSampledRef = useRef(false);
   const sceneRenderMetricsRef = useRef({ calls: 0, triangles: 0 });
+
+  useEffect(() => {
+    initialSampledRef.current = false;
+    frameCountRef.current = 0;
+    elapsedRef.current = 0;
+  }, [qualityPreset]);
 
   useEffect(() => {
     const id = window.requestAnimationFrame(() => {
@@ -32,12 +40,24 @@ function SceneReadyAndTelemetry() {
     return () => window.cancelAnimationFrame(id);
   }, [setAssetReady]);
 
-  useFrame((state, delta) => {
-    state.scene.onAfterRender = (renderer) => {
-      sceneRenderMetricsRef.current.calls = renderer.info.render.calls;
-      sceneRenderMetricsRef.current.triangles = renderer.info.render.triangles;
+  useEffect(() => {
+    const prevOnAfterRender = scene.onAfterRender;
+    scene.onAfterRender = (renderer, scn, cam, geometry, material, group) => {
+      if (cam === camera && renderer.info.render.calls > 2) {
+        sceneRenderMetricsRef.current.calls = renderer.info.render.calls;
+        sceneRenderMetricsRef.current.triangles = renderer.info.render.triangles;
+      }
+      if (typeof prevOnAfterRender === 'function') {
+        prevOnAfterRender(renderer, scn, cam, geometry, material, group);
+      }
     };
 
+    return () => {
+      scene.onAfterRender = prevOnAfterRender;
+    };
+  }, [scene, camera]);
+
+  useFrame((state, delta) => {
     frameCountRef.current += 1;
     elapsedRef.current += delta;
 
@@ -46,7 +66,7 @@ function SceneReadyAndTelemetry() {
     const triangles =
       sceneRenderMetricsRef.current.triangles || state.gl.info.render.triangles;
 
-    if (!initialSampledRef.current && frameCountRef.current >= 4 && calls > 1) {
+    if (!initialSampledRef.current && frameCountRef.current >= 4 && calls > 2) {
       initialSampledRef.current = true;
       setRenderStats({
         fps: 60,
@@ -134,9 +154,25 @@ export function SceneCanvas({ children }: SceneCanvasProps) {
 
   useEffect(() => {
     if (!rootState) return;
+    const maxCap = qualityPreset === 'performance' ? 1 : qualityPreset === 'balanced' ? 1.5 : 2;
+    const targetDpr = Math.min(Math.max(window.devicePixelRatio || 1, 1), maxCap);
+    rootState.setDpr(targetDpr);
+
     rootState.gl.shadowMap.enabled = enableShadows;
+    rootState.gl.shadowMap.type = THREE.PCFSoftShadowMap;
+    rootState.gl.shadowMap.autoUpdate = true;
     rootState.gl.shadowMap.needsUpdate = true;
-  }, [rootState, enableShadows]);
+
+    rootState.scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        for (const mat of mats) {
+          if (mat) mat.needsUpdate = true;
+        }
+      }
+    });
+    rootState.invalidate();
+  }, [rootState, enableShadows, qualityPreset]);
 
   return (
     <CanvasErrorBoundary>
@@ -145,7 +181,7 @@ export function SceneCanvas({ children }: SceneCanvasProps) {
         dpr={dprRange}
         camera={{ fov: 45, near: 0.1, far: 140, position: [0, 3.3, 7.2] }}
         gl={{
-          antialias: qualityPreset === 'performance',
+          antialias: false,
           preserveDrawingBuffer: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
@@ -163,6 +199,7 @@ export function SceneCanvas({ children }: SceneCanvasProps) {
         }}
       >
         <PerformanceMonitor
+          ms={1800}
           flipflops={2}
           onDecline={() => {
             stepDownQuality();
