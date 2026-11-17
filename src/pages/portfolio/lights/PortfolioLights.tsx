@@ -1,13 +1,20 @@
+import { usePortfolioStore } from '@/stores/usePortfolioStore';
+
 export function PortfolioLights() {
+  const isDark = usePortfolioStore((s) => s.theme === 'dark');
+
   return (
     <>
-      <ambientLight intensity={0.45} color="#cbd5e1" />
-      <hemisphereLight args={['#38bdf8', '#111827', 0.65]} />
+      <ambientLight intensity={isDark ? 0.42 : 0.62} color="#f5f0e6" />
+      <hemisphereLight
+        args={[isDark ? '#f2ece1' : '#ffffff', isDark ? '#1c1a17' : '#d8d1c2', isDark ? 0.58 : 0.72]}
+      />
 
+      {/* Primary Architectural Key Light */}
       <directionalLight
         position={[12, 18, 12]}
-        intensity={2.2}
-        color="#f1f5f9"
+        intensity={isDark ? 2.15 : 2.35}
+        color="#fff6eb"
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-bias={-0.0004}
@@ -20,16 +27,20 @@ export function PortfolioLights() {
         shadow-camera-far={65}
       />
 
-      {/* Soft front architectural fill so dark metallic PBR details read crisply */}
-      <directionalLight position={[-8, 6, 14]} intensity={0.75} color="#7dd3fc" />
+      {/* Cool Overcast Rim / Fill */}
+      <directionalLight
+        position={[-10, 8, 14]}
+        intensity={isDark ? 0.85 : 0.95}
+        color="#d8e0eb"
+      />
 
-      {/* Rim / fill accents tailored to key stations */}
-      <pointLight position={[0, 4.5, 2.5]} intensity={14} distance={14} decay={2} color="#38bdf8" />
-      <pointLight position={[12.5, 4.2, -0.5]} intensity={18} distance={14} decay={2} color="#10b981" />
-      <pointLight position={[16.2, 3.8, -0.2]} intensity={14} distance={12} decay={2} color="#22d3ee" />
-      <pointLight position={[-14, 4.2, 0.5]} intensity={14} distance={14} decay={2} color="#818cf8" />
-      <pointLight position={[7, 4.2, -11.5]} intensity={14} distance={14} decay={2} color="#22d3ee" />
-      <pointLight position={[-7, 4.2, -11.5]} intensity={14} distance={14} decay={2} color="#f59e0b" />
+      {/* Warm Gallery Exhibit Accent Lights */}
+      <pointLight position={[0, 4.4, 2.6]} intensity={10} distance={13} decay={2} color="#f3dfca" />
+      <pointLight position={[12.5, 4.4, 0.5]} intensity={11} distance={13} decay={2} color="#eedcc8" />
+      <pointLight position={[16.2, 4.0, 0.8]} intensity={10} distance={12} decay={2} color="#f3dfca" />
+      <pointLight position={[-14, 4.4, 0.8]} intensity={11} distance={14} decay={2} color="#efe2d4" />
+      <pointLight position={[10.5, 4.2, -11.5]} intensity={10} distance={13} decay={2} color="#f2dfcc" />
+      <pointLight position={[-10.5, 4.2, -11.5]} intensity={10} distance={13} decay={2} color="#f4dec6" />
     </>
   );
 }

@@ -1,12 +1,12 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { Environment, Lightformer, Sparkles } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { Environment, Lightformer } from '@react-three/drei';
 import { STATIONS } from '@/data/portfolioData';
 import blueprintVert from '@/shaders/blueprintGrid.vert';
 import blueprintFrag from '@/shaders/blueprintGrid.frag';
+import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
-const CAMPUS_HUB: [number, number, number] = [0, 0.015, 0];
+const CAMPUS_HUB: [number, number, number] = [0, 0.012, 0];
 
 interface ConnectorSegment {
   id: string;
@@ -23,16 +23,12 @@ function buildConnectorSegments(): ConnectorSegment[] {
     const dz = station.position[2] - CAMPUS_HUB[2];
     const length = Math.hypot(dx, dz);
     const angle = Math.atan2(dx, dz);
-    const markerCount = 14;
+    const markerCount = 12;
     const markers: [number, number, number][] = [];
 
     for (let i = 1; i < markerCount; i++) {
       const t = i / markerCount;
-      markers.push([
-        CAMPUS_HUB[0] + dx * t,
-        0.02,
-        CAMPUS_HUB[2] + dz * t,
-      ]);
+      markers.push([CAMPUS_HUB[0] + dx * t, 0.014, CAMPUS_HUB[2] + dz * t]);
     }
 
     return {
@@ -47,78 +43,85 @@ function buildConnectorSegments(): ConnectorSegment[] {
 }
 
 export function PortfolioStaging() {
+  const theme = usePortfolioStore((s) => s.theme);
   const gridMatRef = useRef<THREE.ShaderMaterial>(null);
+
+  const isDark = theme === 'dark';
+  const stageBg = isDark ? '#11100e' : '#eae5da';
 
   const gridUniforms = useMemo(
     () => ({
-      uGridColor: { value: new THREE.Color('#164e63') },
-      uMajorColor: { value: new THREE.Color('#22d3ee') },
-      uBackgroundColor: { value: new THREE.Color('#090d16') },
+      uGridColor: { value: new THREE.Color('#23201b') },
+      uMajorColor: { value: new THREE.Color('#423c33') },
+      uBackgroundColor: { value: new THREE.Color('#11100e') },
       uCellSize: { value: 1.0 },
       uMajorStep: { value: 4.0 },
-      uFadeDistance: { value: 44.0 },
+      uFadeDistance: { value: 42.0 },
     }),
     [],
   );
 
+  useEffect(() => {
+    gridUniforms.uBackgroundColor.value.set(isDark ? '#11100e' : '#eae5da');
+    gridUniforms.uGridColor.value.set(isDark ? '#23201b' : '#d6cfc0');
+    gridUniforms.uMajorColor.value.set(isDark ? '#423c33' : '#afa796');
+  }, [isDark, gridUniforms]);
+
   const connectors = useMemo(() => buildConnectorSegments(), []);
 
-  // Perimeter structural pylons (non-interactive layer 0) to establish architectural scale & >80 scene geometries
+  // Architectural stone perimeter markers (Layer 0)
   const perimeterMarkers = useMemo(() => {
     const items: { key: string; pos: [number, number, number]; height: number }[] = [];
-    const total = 36;
+    const total = 32;
     for (let i = 0; i < total; i++) {
       const theta = (i / total) * Math.PI * 2;
       const radius = 24.5;
       items.push({
         key: `pylon-${i}`,
-        pos: [Math.cos(theta) * radius, 0.25, Math.sin(theta) * radius - 5],
-        height: i % 3 === 0 ? 0.5 : 0.24,
+        pos: [Math.cos(theta) * radius, 0.16, Math.sin(theta) * radius - 5],
+        height: i % 4 === 0 ? 0.34 : 0.18,
       });
     }
     return items;
   }, []);
 
-  useFrame(() => {
-    // Keep uniform object reference stable without triggering React updates
-    if (gridMatRef.current) {
-      gridMatRef.current.uniforms.uFadeDistance.value = 44.0;
-    }
-  });
+  const copperTrackColor = isDark ? '#9a5833' : '#a85a2e';
+  const brassPinColor = isDark ? '#c47b49' : '#8c4f2b';
+  const stoneBollardColor = isDark ? '#24221e' : '#cbc4b5';
 
   return (
     <>
-      <color attach="background" args={['#090d16']} />
-      <fog attach="fog" args={['#090d16', 24, 58]} />
+      <color attach="background" args={[stageBg]} />
+      <fog attach="fog" args={[stageBg, 24, 58]} />
 
       <Environment resolution={256} frames={1}>
         <Lightformer
           form="rect"
-          intensity={2.4}
-          color="#38bdf8"
-          position={[0, 10, 8]}
+          intensity={isDark ? 1.85 : 2.15}
+          color="#fff4e4"
+          position={[4, 12, 10]}
           rotation={[Math.PI / 3, 0, 0]}
-          scale={[16, 4, 1]}
+          scale={[18, 5, 1]}
         />
         <Lightformer
           form="rect"
-          intensity={1.6}
-          color="#e2e8f0"
-          position={[12, 6, -6]}
-          rotation={[0, -Math.PI / 3, 0]}
-          scale={[10, 3, 1]}
+          intensity={1.35}
+          color="#dfe5ed"
+          position={[-12, 7, -4]}
+          rotation={[0, Math.PI / 3, 0]}
+          scale={[12, 4, 1]}
         />
         <Lightformer
           form="ring"
-          intensity={1.8}
-          color="#10b981"
-          position={[-10, 7, -4]}
-          rotation={[Math.PI / 4, Math.PI / 4, 0]}
+          intensity={1.1}
+          color="#edd9c4"
+          position={[10, 6, -8]}
+          rotation={[Math.PI / 4, -Math.PI / 4, 0]}
           scale={[6, 6, 1]}
         />
       </Environment>
 
-      {/* GLSL Technical Blueprint Floor (Layer 0) */}
+      {/* Architectural Matte Drafting Floor (Layer 0) */}
       <mesh position={[0, 0, -5]} rotation-x={-Math.PI / 2}>
         <planeGeometry args={[120, 120]} />
         <shaderMaterial
@@ -126,40 +129,27 @@ export function PortfolioStaging() {
           vertexShader={blueprintVert}
           fragmentShader={blueprintFrag}
           uniforms={gridUniforms}
-          transparent
         />
       </mesh>
 
-      {/* Transparent Shadow Catcher over GLSL Grid */}
+      {/* Transparent Shadow Catcher */}
       <mesh position={[0, 0.004, -5]} rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[90, 90]} />
-        <shadowMaterial transparent opacity={0.42} />
+        <shadowMaterial transparent opacity={isDark ? 0.42 : 0.24} />
       </mesh>
 
-      {/* Campus Navigation Tracks & Markers (Layer 0, skipped by interactive Raycaster) */}
+      {/* Brushed Copper Inlay Tracks & Stone Markers (Layer 0) */}
       <group name="campus-architecture-layer0">
         {connectors.map((seg) => (
           <group key={seg.id}>
-            <mesh
-              position={[seg.midX, 0.008, seg.midZ]}
-              rotation={[0, seg.angle, 0]}
-            >
-              <boxGeometry args={[0.08, 0.01, seg.length]} />
-              <meshStandardMaterial
-                color="#0e7490"
-                emissive="#22d3ee"
-                emissiveIntensity={0.45}
-                roughness={0.4}
-              />
+            <mesh position={[seg.midX, 0.007, seg.midZ]} rotation={[0, seg.angle, 0]}>
+              <boxGeometry args={[0.06, 0.008, seg.length]} />
+              <meshStandardMaterial color={copperTrackColor} metalness={0.78} roughness={0.36} />
             </mesh>
             {seg.markers.map((pos, idx) => (
               <mesh key={`${seg.id}-m-${idx}`} position={pos}>
-                <boxGeometry args={[0.14, 0.025, 0.14]} />
-                <meshStandardMaterial
-                  color="#164e63"
-                  emissive="#22d3ee"
-                  emissiveIntensity={idx % 2 === 0 ? 0.6 : 0.25}
-                />
+                <boxGeometry args={[0.1, 0.016, 0.1]} />
+                <meshStandardMaterial color={brassPinColor} metalness={0.72} roughness={0.38} />
               </mesh>
             ))}
           </group>
@@ -167,27 +157,11 @@ export function PortfolioStaging() {
 
         {perimeterMarkers.map((item) => (
           <mesh key={item.key} position={item.pos}>
-            <boxGeometry args={[0.16, item.height, 0.16]} />
-            <meshStandardMaterial
-              color="#0f172a"
-              emissive="#1e3a5f"
-              emissiveIntensity={0.45}
-              metalness={0.6}
-              roughness={0.4}
-            />
+            <boxGeometry args={[0.18, item.height, 0.18]} />
+            <meshStandardMaterial color={stoneBollardColor} metalness={0.12} roughness={0.85} />
           </mesh>
         ))}
       </group>
-
-      <Sparkles
-        count={70}
-        scale={[34, 7, 28]}
-        position={[0, 3.2, -5]}
-        size={1.6}
-        speed={0.22}
-        opacity={0.45}
-        color="#38bdf8"
-      />
     </>
   );
 }

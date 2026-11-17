@@ -1,7 +1,4 @@
-import { useRef } from 'react';
-import * as THREE from 'three';
 import { Text } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
 import { GlbModel } from '@/components/canvas/GlbModel';
 import { InteractiveNode } from '@/components/canvas/InteractiveNode';
 import { getStationById } from '@/data/portfolioData';
@@ -10,14 +7,7 @@ import { usePortfolioStore } from '@/stores/usePortfolioStore';
 export function ProjectsStation() {
   const station = getStationById('proyectos');
   const locale = usePortfolioStore((s) => s.locale);
-  const haloRef = useRef<THREE.Mesh>(null);
-
-  useFrame((_, delta) => {
-    if (haloRef.current) {
-      haloRef.current.rotation.y -= delta * 0.55;
-      haloRef.current.rotation.x += delta * 0.2;
-    }
-  });
+  const isDark = usePortfolioStore((s) => s.theme === 'dark');
 
   return (
     <group name="station-proyectos" position={station.position}>
@@ -25,30 +15,23 @@ export function ProjectsStation() {
         <GlbModel url="/models-3d/projects-stage.glb" />
       </InteractiveNode>
 
-      <InteractiveNode nodeId="projects-data" position={[0.9, 1.1, -0.1]}>
-        <mesh ref={haloRef}>
-          <torusKnotGeometry args={[0.24, 0.04, 48, 8]} />
-          <meshStandardMaterial
-            color="#22d3ee"
-            emissive="#10b981"
-            emissiveIntensity={1.1}
-            metalness={0.6}
-            roughness={0.25}
-          />
+      {/* Interactive collar over the right-side Data & Backend manifold */}
+      <InteractiveNode nodeId="projects-data" position={[0.88, 1.18, -0.02]}>
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[0.42, 0.3, 0.42]} />
+          <meshStandardMaterial color="#4e9a76" metalness={0.55} roughness={0.34} />
         </mesh>
       </InteractiveNode>
 
       <Text
-        position={[0, 2.45, 0]}
+        position={[0, 2.38, 0]}
         font="/fonts/Roboto-Bold.ttf"
-        fontSize={0.18}
-        color="#67e8f9"
+        fontSize={0.15}
+        color={isDark ? '#f3efe6' : '#161513'}
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.014}
-        outlineColor="#090d16"
       >
-        {locale === 'es' ? '04 // PROYECTOS & PIPELINE 3D' : '04 // PROJECTS & 3D PIPELINE'}
+        {locale === 'es' ? 'Proyectos Web 3D y Datos' : 'Web 3D & Data Projects'}
       </Text>
     </group>
   );

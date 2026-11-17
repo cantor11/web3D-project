@@ -5,9 +5,8 @@ import { usePortfolioStore } from '@/stores/usePortfolioStore';
 export type CursorVisualState = 'default' | 'hover' | 'active';
 
 /**
- * SUB-11 (PW3D-10): Reactive HUD cursor component with explicit default, hover,
- * and active click states. Position updates mutate transform via ref on the
- * compositor thread without triggering React re-renders on pointermove.
+ * Optical cursor reticle tracking pointer coordinates via compositor-only
+ * transforms while preserving default, hover, and active interaction states.
  */
 export function ReactiveCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -23,7 +22,7 @@ export function ReactiveCursor() {
       ? 'hover'
       : 'default';
 
-  const hoveredLabel = hoveredNodeId ? NODE_DETAILS[hoveredNodeId]?.organization[locale] : null;
+  const hoveredLabel = hoveredNodeId ? NODE_DETAILS[hoveredNodeId]?.actionLabel[locale] : null;
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
@@ -71,25 +70,25 @@ export function ReactiveCursor() {
       <div
         className={`flex items-center justify-center rounded-full border transition-all duration-150 ${
           visualState === 'active'
-            ? 'h-6 w-6 scale-90 border-emerald-400 bg-emerald-400/25 shadow-[0_0_16px_rgba(16,185,129,0.6)]'
+            ? 'h-6 w-6 scale-90 border-[var(--accent-primary)] bg-[var(--accent-soft)]'
             : visualState === 'hover'
-              ? 'h-9 w-9 scale-105 border-cyan-300 bg-cyan-400/15 shadow-[0_0_20px_rgba(34,211,238,0.55)]'
-              : 'h-4 w-4 border-cyan-400/45 bg-transparent'
+              ? 'h-8 w-8 scale-105 border-[var(--accent-primary)] bg-[var(--accent-soft)]'
+              : 'h-3.5 w-3.5 border-[var(--border-control)] bg-transparent'
         }`}
       >
         <span
           className={`rounded-full transition-all duration-150 ${
             visualState === 'active'
-              ? 'h-2 w-2 bg-emerald-300'
+              ? 'h-2 w-2 bg-[var(--accent-primary)]'
               : visualState === 'hover'
-                ? 'h-1.5 w-1.5 bg-cyan-200'
-                : 'h-1 w-1 bg-cyan-400/60'
+                ? 'h-1.5 w-1.5 bg-[var(--accent-primary)]'
+                : 'h-1 w-1 bg-[var(--text-secondary)]'
           }`}
         />
       </div>
 
       {hoveredLabel && (
-        <div className="mt-1.5 -translate-x-1/4 whitespace-nowrap rounded border border-cyan-400/50 bg-slate-950/90 px-2 py-0.5 font-mono text-[10px] text-cyan-200 shadow-md">
+        <div className="mt-1.5 -translate-x-1/4 whitespace-nowrap rounded-[2px] border border-[var(--border-control)] bg-[var(--bg-surface-elevated)] px-2 py-0.5 text-[11px] font-medium text-[var(--text-primary)]">
           {hoveredLabel}
         </div>
       )}

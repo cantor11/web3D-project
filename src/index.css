@@ -1,27 +1,57 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-:root {
+:root,
+:root[data-theme='dark'] {
   color-scheme: dark;
-  --bg-void: #090d16;
-  --bg-panel: rgba(14, 21, 37, 0.72);
-  --bg-panel-strong: rgba(11, 17, 30, 0.94);
-  --border-hud: rgba(34, 211, 238, 0.28);
-  --border-hud-strong: rgba(34, 211, 238, 0.6);
-  --accent-cyan: #22d3ee;
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
+  --bg-stage: #11100e;
+  --bg-surface: #161513;
+  --bg-surface-elevated: #1e1d1a;
+  --bg-muted: #24221e;
+  --border-subtle: #34312b;
+  --border-control: #726d64;
+  --text-primary: #f3efe6;
+  --text-secondary: #b5afa4;
+  --accent-primary: #eb8647;
+  --accent-fill: #e87a38;
+  --on-accent: #161513;
+  --accent-soft: rgba(235, 134, 71, 0.14);
+  --status-ok: #5cb88d;
+  --status-ok-soft: rgba(92, 184, 141, 0.14);
+  --scrim-backdrop: rgba(12, 11, 10, 0.76);
+  --shadow-dialog: 0 24px 64px rgba(0, 0, 0, 0.56);
   --target-size: 24px;
 }
 
-@media (pointer: coarse) {
-  :root {
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg-stage: #eae5da;
+  --bg-surface: #f4f1ea;
+  --bg-surface-elevated: #ffffff;
+  --bg-muted: #e6e0d4;
+  --border-subtle: #d5cebf;
+  --border-control: #8c867b;
+  --text-primary: #161513;
+  --text-secondary: #57524a;
+  --accent-primary: #b84a14;
+  --accent-fill: #b84a14;
+  --on-accent: #f4f1ea;
+  --accent-soft: rgba(184, 74, 20, 0.11);
+  --status-ok: #1f6b4b;
+  --status-ok-soft: rgba(31, 107, 75, 0.11);
+  --scrim-backdrop: rgba(22, 21, 19, 0.48);
+  --shadow-dialog: 0 24px 60px rgba(22, 21, 19, 0.18);
+}
+
+@media (pointer: coarse), (max-width: 767px) {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme='light'] {
     --target-size: 44px;
   }
 }
@@ -34,18 +64,29 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: var(--bg-void);
+  background-color: var(--bg-stage);
   color: var(--text-primary);
   font-family: var(--font-sans);
 }
 
-:where(button, a[href], input, select, textarea, [tabindex="0"]) {
+/* Native interactive affordance across the application */
+:where(button, a[href], summary, select, label[for], [role='button'], [role='tab'], [role='switch']):not(:disabled):not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
+:where(button, input, select, textarea):disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+:where(button, a[href], input, select, textarea, [tabindex='0']) {
   min-block-size: var(--target-size);
   min-inline-size: var(--target-size);
 }
 
 :where(button, a[href], input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--accent-cyan);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
@@ -60,40 +101,63 @@ li {
   text-wrap: pretty;
 }
 
-/* Native <dialog> 2.5D overlay following modern-web-guidance */
-dialog.hud-dialog:modal {
-  overscroll-behavior: contain;
-  margin: auto;
-  max-width: min(760px, calc(100vw - 2rem));
-  max-height: calc(100dvh - 2.5rem);
-  width: 100%;
-  padding: 0;
-  border: 1px solid var(--border-hud-strong);
-  border-radius: 0.75rem;
-  background: var(--bg-panel-strong);
-  color: var(--text-primary);
-  box-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.72),
-    0 0 36px rgba(34, 211, 238, 0.16);
+.studio-surface {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
 }
 
-dialog.hud-dialog::backdrop {
-  background: rgba(5, 8, 16, 0.72);
-  backdrop-filter: blur(8px);
+.studio-control {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-control);
+  color: var(--text-primary);
+}
+
+.studio-control:hover {
+  border-color: var(--accent-primary);
+}
+
+.studio-cta {
+  background-color: var(--accent-fill);
+  border: 1px solid var(--accent-fill);
+  color: var(--on-accent);
+}
+
+.studio-cta:hover {
+  filter: brightness(1.06);
+}
+
+/* Native <dialog> overlay with blur restricted exclusively to modal backdrop */
+dialog.studio-dialog:modal {
+  overscroll-behavior: contain;
+  margin: auto;
+  max-width: min(820px, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 2rem);
+  width: 100%;
+  padding: 0;
+  border: 1px solid var(--border-control);
+  border-radius: 10px;
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-dialog);
+}
+
+dialog.studio-dialog::backdrop {
+  background: var(--scrim-backdrop);
+  backdrop-filter: blur(6px);
   overflow: hidden;
   overscroll-behavior: contain;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  dialog.hud-dialog[open] {
-    animation: dialog-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  dialog.studio-dialog[open] {
+    animation: dialog-in 150ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
 @keyframes dialog-in {
   from {
-    opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    opacity: 0.94;
+    transform: translateY(6px) scale(0.99);
   }
   to {
     opacity: 1;
@@ -101,15 +165,18 @@ dialog.hud-dialog::backdrop {
   }
 }
 
-.hud-panel {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-hud);
-  backdrop-filter: blur(12px);
-}
+@media (forced-colors: active) {
+  .studio-surface,
+  .studio-control,
+  .studio-cta,
+  dialog.studio-dialog:modal {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
 
-.blueprint-pattern {
-  background-image:
-    linear-gradient(rgba(34, 211, 238, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.08) 1px, transparent 1px);
-  background-size: 28px 28px;
+  :where(button, a[href], input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid Highlight;
+  }
 }

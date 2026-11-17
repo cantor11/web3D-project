@@ -8,6 +8,8 @@ import {
   getStationFromHash,
 } from '@/data/portfolioData';
 
+export type ThemeMode = 'dark' | 'light';
+
 export interface PortfolioState {
   currentSection: StationId;
   targetSection: StationId;
@@ -16,6 +18,7 @@ export interface PortfolioState {
   hoveredNodeId: InteractiveNodeId | null;
   selectedNodeId: InteractiveNodeId | null;
   locale: Locale;
+  theme: ThemeMode;
   isAssetReady: boolean;
   dracoInitMs: number | null;
   raycastTimeMs: number;
@@ -27,6 +30,8 @@ export interface PortfolioState {
   closeModal: () => void;
   setLocale: (locale: Locale) => void;
   toggleLocale: () => void;
+  setTheme: (theme: ThemeMode) => void;
+  toggleTheme: () => void;
   setAssetReady: (ready: boolean) => void;
   setDracoInitMs: (ms: number) => void;
   setRaycastTimeMs: (ms: number) => void;
@@ -38,6 +43,12 @@ const initialSection: StationId =
     ? (getStationFromHash(window.location.hash) ?? 'sobre-mi')
     : 'sobre-mi';
 
+function syncDocumentTheme(theme: ThemeMode): void {
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.theme = theme;
+  }
+}
+
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   currentSection: initialSection,
   targetSection: initialSection,
@@ -46,6 +57,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   hoveredNodeId: null,
   selectedNodeId: null,
   locale: 'es',
+  theme: 'dark',
   isAssetReady: false,
   dracoInitMs: null,
   raycastTimeMs: 0,
@@ -109,6 +121,17 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
 
   toggleLocale: () => {
     set((state) => ({ locale: state.locale === 'es' ? 'en' : 'es' }));
+  },
+
+  setTheme: (theme) => {
+    syncDocumentTheme(theme);
+    set({ theme });
+  },
+
+  toggleTheme: () => {
+    const next: ThemeMode = get().theme === 'dark' ? 'light' : 'dark';
+    syncDocumentTheme(next);
+    set({ theme: next });
   },
 
   setAssetReady: (ready) => set({ isAssetReady: ready }),

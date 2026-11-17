@@ -1,4 +1,5 @@
 import { useProgress } from '@react-three/drei';
+import { PROFILE } from '@/data/portfolioData';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
 export function LoadingOverlay() {
@@ -9,25 +10,29 @@ export function LoadingOverlay() {
   const isVisible = !isAssetReady || active;
   if (!isVisible) return null;
 
+  const roundedProgress = Math.max(8, Math.min(100, Math.round(progress)));
+
   return (
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#090d16]/95 px-6 backdrop-blur-md transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[var(--bg-stage)] px-6 transition-opacity duration-300"
     >
-      <div className="hud-panel w-full max-w-sm rounded-xl p-6 text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.22em] text-cyan-300">
-          {locale === 'es' ? 'INICIALIZANDO MOTOR WEBGL2' : 'INITIALIZING WEBGL2 ENGINE'}
+      <div className="studio-surface w-full max-w-sm rounded-[8px] p-6">
+        <p className="text-xs font-medium text-[var(--text-secondary)]">
+          {locale === 'es' ? 'Preparando escena interactiva' : 'Loading interactive workspace'}
         </p>
-        <p className="mt-2 text-lg font-semibold text-slate-100">Junior Cantor · Web 3D</p>
-        <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
+        <p className="mt-1 font-display text-2xl font-medium text-[var(--text-primary)]">
+          {PROFILE.shortName}
+        </p>
+        <div className="mt-4 h-1 w-full overflow-hidden bg-[var(--bg-muted)]">
           <div
-            className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-[width] duration-200"
-            style={{ width: `${Math.max(12, Math.min(100, Math.round(progress)))}%` }}
+            className="h-full bg-[var(--accent-primary)] transition-[width] duration-200"
+            style={{ width: `${roundedProgress}%` }}
           />
         </div>
-        <p className="mt-2 font-mono text-[11px] text-slate-400">
-          {Math.round(progress)}% · DRACO + PBR Shaders
+        <p className="mt-2 font-mono text-xs text-[var(--text-secondary)]">
+          {roundedProgress}%
         </p>
       </div>
     </div>

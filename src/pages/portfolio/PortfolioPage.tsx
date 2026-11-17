@@ -15,7 +15,7 @@ export function PortfolioPage() {
   const locale = usePortfolioStore((s) => s.locale);
 
   return (
-    <div className="relative h-dvh w-screen overflow-hidden bg-[#090d16] select-none">
+    <div className="relative h-dvh w-screen overflow-hidden bg-[var(--bg-stage)] select-none">
       <TopNavHUD />
 
       <main

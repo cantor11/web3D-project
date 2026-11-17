@@ -8,12 +8,12 @@ varying vec2 vUv;
 
 void main() {
   float flow = fract(vUv.x * uDensity - uTime * uSpeed);
-  float head = smoothstep(0.0, 0.14, flow) * (1.0 - smoothstep(0.14, 0.55, flow));
-  float core = pow(head, 2.2);
+  float head = smoothstep(0.0, 0.16, flow) * (1.0 - smoothstep(0.16, 0.52, flow));
+  float core = pow(head, 1.8);
 
-  float railGlow = 0.25 + 0.75 * abs(sin(vUv.y * 3.14159));
-  vec3 color = mix(uBaseColor * 0.35, uPulseColor * 2.2, core) * railGlow;
-  float alpha = mix(0.28, 1.0, core);
+  float tubeShade = 0.45 + 0.55 * abs(sin(vUv.y * 3.14159));
+  vec3 color = mix(uBaseColor * 0.72, uPulseColor * 1.18, core) * tubeShade;
+  float alpha = mix(0.7, 0.98, core);
 
   gl_FragColor = vec4(color, alpha);
   #include <tonemapping_fragment>

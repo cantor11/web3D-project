@@ -1,7 +1,4 @@
-import { useRef } from 'react';
-import * as THREE from 'three';
-import { Float, Text } from '@react-three/drei';
-import { useFrame } from '@react-three/fiber';
+import { Text } from '@react-three/drei';
 import { GlbModel } from '@/components/canvas/GlbModel';
 import { InteractiveNode } from '@/components/canvas/InteractiveNode';
 import { getStationById } from '@/data/portfolioData';
@@ -10,14 +7,7 @@ import { usePortfolioStore } from '@/stores/usePortfolioStore';
 export function ContactStation() {
   const station = getStationById('contacto');
   const locale = usePortfolioStore((s) => s.locale);
-  const pulseRingRef = useRef<THREE.Mesh>(null);
-
-  useFrame(({ clock }) => {
-    if (pulseRingRef.current) {
-      const s = 1 + Math.sin(clock.elapsedTime * 2.4) * 0.14;
-      pulseRingRef.current.scale.setScalar(s);
-    }
-  });
+  const isDark = usePortfolioStore((s) => s.theme === 'dark');
 
   return (
     <group name="station-contacto" position={station.position}>
@@ -25,28 +15,15 @@ export function ContactStation() {
         <GlbModel url="/models-3d/contact-beacon.glb" />
       </InteractiveNode>
 
-      <Float speed={1.4} floatIntensity={0.1}>
-        <mesh ref={pulseRingRef} position={[0.58, 2.34, -0.1]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.28, 0.015, 8, 32]} />
-          <meshStandardMaterial
-            color="#f59e0b"
-            emissive="#f59e0b"
-            emissiveIntensity={1.4}
-          />
-        </mesh>
-      </Float>
-
       <Text
-        position={[0, 2.7, 0]}
+        position={[0, 2.66, 0]}
         font="/fonts/Roboto-Bold.ttf"
-        fontSize={0.18}
-        color="#fcd34d"
+        fontSize={0.15}
+        color={isDark ? '#f3efe6' : '#161513'}
         anchorX="center"
         anchorY="middle"
-        outlineWidth={0.014}
-        outlineColor="#090d16"
       >
-        {locale === 'es' ? '05 // CONTACTO & HOJA DE VIDA' : '05 // CONTACT & RESUME'}
+        {locale === 'es' ? 'Contacto y Hoja de Vida' : 'Contact & Resume'}
       </Text>
     </group>
   );

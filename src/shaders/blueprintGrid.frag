@@ -16,18 +16,17 @@ float gridLine(vec2 coord, float scale, float lineWidth) {
 
 void main() {
   vec2 xz = vWorldPosition.xz;
-  float minorGrid = gridLine(xz, uCellSize, 1.0);
-  float majorGrid = gridLine(xz, uCellSize * uMajorStep, 1.35);
+  float minorGrid = gridLine(xz, uCellSize, 0.9);
+  float majorGrid = gridLine(xz, uCellSize * uMajorStep, 1.15);
 
   float dist = length(xz - vec2(0.0, -5.0));
-  float radialFade = 1.0 - smoothstep(uFadeDistance * 0.45, uFadeDistance, dist);
+  float radialFade = 1.0 - smoothstep(uFadeDistance * 0.35, uFadeDistance, dist);
 
   vec3 color = uBackgroundColor;
-  color = mix(color, uGridColor, minorGrid * 0.24 * radialFade);
-  color = mix(color, uMajorColor, majorGrid * 0.48 * radialFade);
+  color = mix(color, uGridColor, minorGrid * 0.16 * radialFade);
+  color = mix(color, uMajorColor, majorGrid * 0.34 * radialFade);
 
-  float alpha = clamp((minorGrid * 0.24 + majorGrid * 0.48) * radialFade + 0.88, 0.0, 1.0);
-  gl_FragColor = vec4(color, alpha);
+  gl_FragColor = vec4(color, 1.0);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }

@@ -38,16 +38,17 @@ export interface StationConfig {
 export interface NodeDetail {
   id: InteractiveNodeId;
   stationId: StationId;
-  badge: LocalizedText;
+  category: LocalizedText;
+  actionLabel: LocalizedText;
   title: LocalizedText;
   organization: LocalizedText;
   period: LocalizedText;
   summary: LocalizedText;
   highlights: { es: string[]; en: string[] };
   stack: string[];
-  architectureNote: LocalizedText;
-  metrics: { label: LocalizedText; value: string }[];
-  links?: { label: LocalizedText; href: string; external?: boolean }[];
+  sceneContext: LocalizedText;
+  facts: { label: LocalizedText; value: LocalizedText }[];
+  links?: { label: LocalizedText; href: string; external?: boolean; primary?: boolean }[];
 }
 
 export const STATIONS: StationConfig[] = [
@@ -55,14 +56,14 @@ export const STATIONS: StationConfig[] = [
     id: 'sobre-mi',
     index: 1,
     hash: '#sobre-mi',
-    label: { es: 'Sobre Mí', en: 'About Me' },
-    shortLabel: { es: '01. Sobre Mí', en: '01. About' },
+    label: { es: 'Sobre Mí', en: 'About' },
+    shortLabel: { es: 'Sobre Mí', en: 'About' },
     subtitle: {
-      es: 'Ingeniería de Sistemas · Software, Datos e IA',
-      en: 'Systems Engineering · Software, Data & AI',
+      es: 'Ingeniería de Sistemas: software, datos e inteligencia artificial.',
+      en: 'Systems Engineering: software, data pipelines, and applied AI.',
     },
     position: [0, 0, 0],
-    cameraPosition: [0, 3.4, 7.6],
+    cameraPosition: [0, 3.3, 7.2],
     cameraTarget: [0, 1.15, 0],
     defaultNodeId: 'workstation-hero',
   },
@@ -71,14 +72,14 @@ export const STATIONS: StationConfig[] = [
     index: 2,
     hash: '#experiencia',
     label: { es: 'Experiencia', en: 'Experience' },
-    shortLabel: { es: '02. Experiencia', en: '02. Experience' },
+    shortLabel: { es: 'Experiencia', en: 'Experience' },
     subtitle: {
-      es: 'Uplanner (ETL / Airflow / Polars) & Global System Solutions (Mobile / APIs)',
-      en: 'Uplanner (ETL / Airflow / Polars) & Global System Solutions (Mobile / APIs)',
+      es: 'Uplanner (Airflow y Polars) y Global System Solutions (móvil y APIs REST).',
+      en: 'Uplanner (Airflow and Polars) and Global System Solutions (mobile and REST APIs).',
     },
     position: [14, 0, -2],
-    cameraPosition: [14.1, 3.7, 6.1],
-    cameraTarget: [14.1, 1.25, -1.8],
+    cameraPosition: [14.2, 3.6, 6.0],
+    cameraTarget: [14.2, 1.25, -1.85],
     defaultNodeId: 'uplanner-rack',
   },
   {
@@ -86,13 +87,13 @@ export const STATIONS: StationConfig[] = [
     index: 3,
     hash: '#habilidades',
     label: { es: 'Habilidades', en: 'Skills' },
-    shortLabel: { es: '03. Habilidades', en: '03. Skills' },
+    shortLabel: { es: 'Habilidades', en: 'Skills' },
     subtitle: {
-      es: 'Stack Técnico, Nube & Certificaciones Oficiales',
-      en: 'Tech Stack, Cloud & Official Certifications',
+      es: 'Dominios técnicos de ingeniería y formación verificada (2021 a 2026).',
+      en: 'Core engineering stack and academic background (2021 to 2026).',
     },
     position: [-14, 0, -2],
-    cameraPosition: [-14, 3.5, 5.8],
+    cameraPosition: [-14, 3.45, 5.8],
     cameraTarget: [-14, 1.2, -2],
     defaultNodeId: 'skills-core',
   },
@@ -101,14 +102,14 @@ export const STATIONS: StationConfig[] = [
     index: 4,
     hash: '#proyectos',
     label: { es: 'Proyectos', en: 'Projects' },
-    shortLabel: { es: '04. Proyectos', en: '04. Projects' },
+    shortLabel: { es: 'Proyectos', en: 'Projects' },
     subtitle: {
-      es: 'Arquitectura Web 3D, Pipeline GLB/DRACO e Ingeniería de Datos',
-      en: 'Web 3D Architecture, GLB/DRACO Pipeline & Data Engineering',
+      es: 'Arquitectura Web 3D con pipeline DRACO y sistemas de datos en Python.',
+      en: 'Web 3D architecture with DRACO asset pipeline and Python data systems.',
     },
     position: [10.5, 0, -14.5],
-    cameraPosition: [10.5, 3.6, -6.7],
-    cameraTarget: [10.5, 1.2, -14.5],
+    cameraPosition: [10.5, 3.5, -6.9],
+    cameraTarget: [10.5, 1.15, -14.5],
     defaultNodeId: 'projects-web3d',
   },
   {
@@ -116,13 +117,13 @@ export const STATIONS: StationConfig[] = [
     index: 5,
     hash: '#contacto',
     label: { es: 'Contacto', en: 'Contact' },
-    shortLabel: { es: '05. Contacto', en: '05. Contact' },
+    shortLabel: { es: 'Contacto', en: 'Contact' },
     subtitle: {
-      es: 'Disponibilidad, Referencias Profesionales & Hoja de Vida',
-      en: 'Availability, Professional References & Resume',
+      es: 'Canales directos, referencias profesionales y descarga de hoja de vida.',
+      en: 'Direct contact channels, industry references, and PDF resume.',
     },
     position: [-10.5, 0, -14.5],
-    cameraPosition: [-10.5, 3.4, -6.9],
+    cameraPosition: [-10.5, 3.3, -7.1],
     cameraTarget: [-10.5, 1.15, -14.5],
     defaultNodeId: 'contact-terminal',
   },
@@ -132,23 +133,23 @@ export const PROFILE = {
   fullName: 'Junior Orlando Cantor Arévalo',
   shortName: 'Junior Cantor',
   role: {
-    es: 'Estudiante de 9.º Semestre de Ingeniería de Sistemas',
-    en: '9th-Semester Systems Engineering Student',
+    es: 'Ing. de Sistemas · Software, Datos y Web 3D',
+    en: 'Systems Eng. · Software, Data & Web 3D',
   },
-  university: 'Universidad del Valle · Cali, Colombia',
+  university: 'Universidad del Valle, Cali',
   email: 'junior.cantor11@gmail.com',
   phone: '+57 302 211 3532',
   location: 'Cali, Colombia',
   languages: {
-    es: 'Español (Nativo) · Inglés (B2)',
-    en: 'Spanish (Native) · English (B2)',
+    es: 'Español nativo, inglés B2',
+    en: 'Spanish native, English B2',
   },
   githubUrl: 'https://github.com/cantor11',
   linkedinUrl: 'https://www.linkedin.com/in/junior-cantor',
   cvPath: '/cv/Junior_Cantor_CV.pdf',
   summary: {
-    es: 'Enfocado en el desarrollo de software, la ingeniería de datos y las aplicaciones de inteligencia artificial. Experiencia en herramientas funcionales, optimización de pipelines ETL/ELT y automatización bajo metodologías ágiles y estándares de calidad.',
-    en: 'Focused on software engineering, data engineering, and applied artificial intelligence. Hands-on experience building reliable software tools, optimizing ETL/ELT data pipelines, and automating workflows under agile quality standards.',
+    es: 'Estudiante de noveno semestre de Ingeniería de Sistemas en la Universidad del Valle. Trabajo en desarrollo de software full-stack, ingeniería de datos con Apache Airflow y Polars, y aplicaciones de inteligencia artificial bajo metodologías ágiles.',
+    en: 'Ninth-semester Systems Engineering student at Universidad del Valle. I build full-stack web software, data pipelines with Apache Airflow and Polars, and applied machine learning workflows using agile engineering practices.',
   },
 };
 
@@ -156,356 +157,451 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
   'workstation-hero': {
     id: 'workstation-hero',
     stationId: 'sobre-mi',
-    badge: { es: 'ESTACIÓN 01 · PERFIL PROFESIONAL', en: 'STATION 01 · PROFILE' },
+    category: { es: 'Perfil profesional', en: 'Professional profile' },
+    actionLabel: { es: 'Inspeccionar perfil', en: 'Inspect profile' },
     title: {
       es: 'Junior Orlando Cantor Arévalo',
       en: 'Junior Orlando Cantor Arévalo',
     },
     organization: {
-      es: 'Universidad del Valle (9.º Semestre Aprobado)',
-      en: 'Universidad del Valle (9th Semester Completed)',
+      es: 'Universidad del Valle (9.º semestre aprobado)',
+      en: 'Universidad del Valle (9th semester completed)',
     },
-    period: { es: 'Cali, Colombia · 2026', en: 'Cali, Colombia · 2026' },
+    period: { es: 'Cali, Colombia', en: 'Cali, Colombia' },
     summary: PROFILE.summary,
     highlights: {
       es: [
-        'Desarrollo de software full-stack con Python (FastAPI, Django) y TypeScript/JavaScript (React, Angular).',
-        'Ingeniería de datos con Apache Airflow, dbt, Polars, Pandas y Databricks.',
-        'Despliegue en nube AWS y GCP con Docker, Kubernetes y pipelines CI/CD (GitHub Actions, Jenkins).',
-        'Desarrollo Web 3D interactivo (Three.js, React Three Fiber) y fundamentos UX/UI.',
+        'Desarrollo de servicios backend y aplicaciones web con Python (FastAPI, Django) y TypeScript (React, Angular).',
+        'Migración y optimización de flujos ETL en Apache Airflow con procesamiento columnar en Polars y Pandas.',
+        'Contenerización y despliegue en AWS y GCP usando Docker, Kubernetes, GitHub Actions y Jenkins.',
+        'Modelado espacial e interfaces interactivas WebGL2 con Three.js y React Three Fiber.',
       ],
       en: [
-        'Full-stack software development with Python (FastAPI, Django) and TypeScript/JavaScript (React, Angular).',
-        'Data engineering with Apache Airflow, dbt, Polars, Pandas, and Databricks.',
-        'Cloud & DevOps across AWS and GCP with Docker, Kubernetes, and CI/CD (GitHub Actions, Jenkins).',
-        'Interactive Web 3D engineering (Three.js, React Three Fiber) paired with UX/UI foundations.',
+        'Backend services and web interfaces in Python (FastAPI, Django) and TypeScript (React, Angular).',
+        'ETL pipeline migration and tuning on Apache Airflow using Polars and Pandas.',
+        'Containerized deployments on AWS and GCP with Docker, Kubernetes, GitHub Actions, and Jenkins.',
+        'Interactive WebGL2 scenes built with Three.js and React Three Fiber.',
       ],
     },
-    stack: ['Python', 'TypeScript', 'React', 'Three.js', 'Airflow', 'Polars', 'AWS', 'GCP'],
-    architectureNote: {
-      es: 'Estación central del campus 3D: workstation modelada bajo presupuesto low-poly con mapa PBR y pantalla en tiempo real.',
-      en: 'Central hub of the 3D campus: low-poly workstation modeled within polygon budget with PBR maps and live screen texture.',
+    stack: ['Python', 'TypeScript', 'React', 'Three.js', 'Apache Airflow', 'Polars', 'AWS', 'GCP'],
+    sceneContext: {
+      es: 'Estación central: escritorio de ingeniería con doble monitor, torre ventilada y teclado mecánico optimizados en formato GLB comprimido.',
+      en: 'Central exhibition bench: dual-display engineering desk, ventilated SFF chassis, and mechanical keyboard built within the compressed GLB polygon budget.',
     },
-    metrics: [
-      { label: { es: 'Semestre', en: 'Semester' }, value: '9.º Aprobado' },
-      { label: { es: 'Idiomas', en: 'Languages' }, value: 'ES / EN B2' },
-      { label: { es: 'Foco', en: 'Focus' }, value: 'Data + Full-Stack + 3D' },
+    facts: [
+      {
+        label: { es: 'Nivel académico', en: 'Academic status' },
+        value: { es: '9.º semestre aprobado', en: '9th semester completed' },
+      },
+      {
+        label: { es: 'Idiomas', en: 'Languages' },
+        value: { es: 'Español nativo · Inglés B2', en: 'Spanish native · English B2' },
+      },
+      {
+        label: { es: 'Áreas de trabajo', en: 'Focus areas' },
+        value: { es: 'Datos, Full-Stack y Web 3D', en: 'Data, Full-Stack & Web 3D' },
+      },
+    ],
+    links: [
+      {
+        label: { es: 'Descargar hoja de vida (PDF)', en: 'Download resume (PDF)' },
+        href: '/cv/Junior_Cantor_CV.pdf',
+        external: true,
+        primary: true,
+      },
+      {
+        label: { es: 'GitHub', en: 'GitHub' },
+        href: 'https://github.com/cantor11',
+        external: true,
+      },
     ],
   },
   'uplanner-rack': {
     id: 'uplanner-rack',
     stationId: 'experiencia',
-    badge: { es: 'EXPERIENCIA · DATA & SOFTWARE', en: 'EXPERIENCE · DATA & SOFTWARE' },
+    category: { es: 'Experiencia laboral · Datos', en: 'Work experience · Data' },
+    actionLabel: { es: 'Ficha Uplanner', en: 'Uplanner dossier' },
     title: {
       es: 'Practicante de Ingeniería de Software',
       en: 'Software Engineering Intern',
     },
     organization: { es: 'Uplanner', en: 'Uplanner' },
-    period: { es: 'May 2026 — Dic 2026', en: 'May 2026 — Dec 2026' },
+    period: { es: 'May 2026 a Dic 2026', en: 'May 2026 to Dec 2026' },
     summary: {
-      es: 'Optimización de infraestructura de datos corporativa y aplicaciones internas, migrando procesos ETL hacia flujos orquestados en Apache Airflow con procesamiento de alto rendimiento en Polars.',
-      en: 'Optimization of enterprise data pipelines and internal web apps, migrating legacy ETL jobs into orchestrated Apache Airflow DAGs powered by high-throughput Polars processing.',
+      es: 'Trabajo directo en infraestructura de datos y aplicaciones internas, migrando procesos ETL heredados hacia DAGs orquestados en Apache Airflow con ejecución sobre Polars y validación automática de paridad.',
+      en: 'Work across internal data infrastructure and corporate web tools, migrating legacy ETL jobs into orchestrated Apache Airflow DAGs powered by Polars with automated data parity checks.',
     },
     highlights: {
       es: [
         'Migración y optimización de pipelines ETL a Apache Airflow utilizando Polars.',
         'Desarrollo de flujos automatizados para validación y auditoría de paridad de datos.',
         'Modelado de datos, migración de esquemas y gestión de reglas de negocio.',
-        'Implementación y auditoría de aplicaciones web en entorno corporativo.',
+        'Implementación y auditoría técnica de aplicaciones web en entorno corporativo.',
         'Construcción de interfaces analíticas en Streamlit a partir de mockups funcionales.',
       ],
       en: [
-        'Migration and performance optimization of ETL pipelines into Apache Airflow using Polars.',
-        'Development of automated data parity validation and auditing workflows.',
-        'Data modeling, schema migrations, and governance rule management.',
-        'Implementation and technical auditing of corporate web applications.',
-        'Development of interactive Streamlit interfaces translated directly from UI mockups.',
+        'Migration and optimization of ETL pipelines into Apache Airflow using Polars.',
+        'Automated data parity validation and auditing workflows across sources.',
+        'Data modeling, schema migrations, and governance rule maintenance.',
+        'Implementation and technical auditing of internal web applications.',
+        'Analytical Streamlit interfaces translated from functional UI mockups.',
       ],
     },
-    stack: ['Apache Airflow', 'Polars', 'Python', 'SQL / NoSQL', 'Streamlit', 'ETL/ELT', 'Data Modeling'],
-    architectureNote: {
-      es: 'Los pulsos GLSL cian y esmeralda sobre los conductos representan lotes de datos atravesando validación de paridad hacia el rack central.',
-      en: 'Cyan and emerald GLSL light pulses flowing across fiber conduits represent ETL batches passing parity validation into the core rack.',
+    stack: ['Apache Airflow', 'Polars', 'Python', 'SQL / NoSQL', 'Streamlit', 'ETL/ELT'],
+    sceneContext: {
+      es: 'Bastidor de servidores conectado a consola de paridad mediante ductos GLSL que ilustran el tránsito de lotes validados.',
+      en: 'Server cabinet linked to a parity inspection console through GLSL conduits representing validated ETL batch runs.',
     },
-    metrics: [
-      { label: { es: 'Orquestación', en: 'Orchestration' }, value: 'Airflow DAGs' },
-      { label: { es: 'Motor ETL', en: 'ETL Engine' }, value: 'Polars' },
-      { label: { es: 'Calidad', en: 'Quality' }, value: 'Parity Audit' },
+    facts: [
+      {
+        label: { es: 'Orquestación', en: 'Orchestration' },
+        value: { es: 'DAGs en Apache Airflow', en: 'Apache Airflow DAGs' },
+      },
+      {
+        label: { es: 'Motor de datos', en: 'Data engine' },
+        value: { es: 'Polars y SQL / NoSQL', en: 'Polars & SQL / NoSQL' },
+      },
+      {
+        label: { es: 'Visualización', en: 'Reporting UI' },
+        value: { es: 'Tableros en Streamlit', en: 'Streamlit dashboards' },
+      },
     ],
   },
   'gss-mobile': {
     id: 'gss-mobile',
     stationId: 'experiencia',
-    badge: { es: 'EXPERIENCIA · MOBILE & APIS', en: 'EXPERIENCE · MOBILE & APIS' },
+    category: { es: 'Experiencia laboral · Móvil', en: 'Work experience · Mobile' },
+    actionLabel: { es: 'Ficha Global System', en: 'GSS dossier' },
     title: {
       es: 'Desarrollador (Servicios Profesionales)',
       en: 'Software Developer (Professional Services)',
     },
     organization: { es: 'Global System Solutions', en: 'Global System Solutions' },
-    period: { es: 'Ene 2024 — Jun 2024', en: 'Jan 2024 — Jun 2024' },
+    period: { es: 'Ene 2024 a Jun 2024', en: 'Jan 2024 to Jun 2024' },
     summary: {
-      es: 'Construcción de solución móvil de extremo a extremo para registro y gestión de pedidos conectada a infraestructura backend existente mediante servicios REST seguros.',
-      en: 'End-to-end mobile application delivery for order registration and lifecycle management integrated with existing backend services over authenticated REST APIs.',
+      es: 'Desarrollo de aplicación móvil para el ciclo completo de pedidos comerciales, conectada a servicios backend preexistentes mediante endpoints REST autenticados.',
+      en: 'Delivered a mobile order-management client connected to existing backend services through authenticated REST endpoints.',
     },
     highlights: {
       es: [
         'Desarrollo de aplicación móvil para registro, seguimiento y gestión de pedidos.',
         'Integración con backend existente mediante consumo y sincronización de APIs REST.',
         'Diseño de interfaz de usuario responsiva y flujo de autenticación segura.',
-        'Trabajo colaborativo en pruebas funcionales y despliegue del producto final.',
+        'Pruebas funcionales en equipo y acompañamiento hasta el despliegue en producción.',
       ],
       en: [
-        'Built mobile application for real-time order registration, tracking, and management.',
-        'Integrated seamlessly with existing backend systems via RESTful APIs.',
-        'Designed clean user interface flows alongside secure authentication.',
-        'Collaborated across QA testing cycles and final production deployment.',
+        'Built mobile application for order registration, tracking, and lifecycle management.',
+        'Integrated with existing backend services through RESTful API synchronization.',
+        'Implemented responsive UI flows alongside authenticated access control.',
+        'Participated in functional QA cycles through production release.',
       ],
     },
-    stack: ['Mobile App', 'REST APIs', 'Auth Segura', 'UI/UX', 'QA & Deploy'],
-    architectureNote: {
-      es: 'El dispositivo 3D exhibe la vista de pedidos en tiempo real orbitada por 3 nodos satélite que representan Auth, Endpoints REST y Sync.',
-      en: 'The 3D mobile mockup showcases live order states orbited by 3 satellite nodes representing Auth, REST Endpoints, and Sync.',
+    stack: ['Desarrollo Móvil', 'APIs REST', 'Autenticación', 'UI Responsiva', 'QA y Despliegue'],
+    sceneContext: {
+      es: 'Exhibidor de dispositivo móvil vinculado a tres módulos satélite sobre la base que representan autenticación, APIs REST y sincronización.',
+      en: 'Machined mobile display stand coupled to three base modules representing authentication, REST endpoints, and synchronization.',
     },
-    metrics: [
-      { label: { es: 'Integración', en: 'Integration' }, value: 'REST APIs' },
-      { label: { es: 'Seguridad', en: 'Security' }, value: 'Auth Flow' },
-      { label: { es: 'Entrega', en: 'Delivery' }, value: 'Prod Deploy' },
+    facts: [
+      {
+        label: { es: 'Integración', en: 'Integration' },
+        value: { es: 'Servicios REST autenticados', en: 'Authenticated REST APIs' },
+      },
+      {
+        label: { es: 'Alcance funcional', en: 'Functional scope' },
+        value: { es: 'Registro y trazabilidad de pedidos', en: 'Order intake & tracking' },
+      },
+      {
+        label: { es: 'Entrega', en: 'Delivery' },
+        value: { es: 'Pruebas QA y despliegue', en: 'QA testing & release' },
+      },
     ],
   },
   'skills-core': {
     id: 'skills-core',
     stationId: 'habilidades',
-    badge: { es: 'ESTACIÓN 03 · STACK TÉCNICO', en: 'STATION 03 · TECH STACK' },
+    category: { es: 'Competencias técnicas', en: 'Technical capabilities' },
+    actionLabel: { es: 'Ver stack técnico', en: 'Inspect tech stack' },
     title: {
-      es: 'Habilidades de Ingeniería, Datos y Nube',
-      en: 'Engineering, Data & Cloud Capabilities',
+      es: 'Ingeniería de Software, Datos y Nube',
+      en: 'Software, Data Engineering & Cloud',
     },
     organization: {
-      es: 'Software · Data Engineering · Cloud/DevOps · BI & IA',
-      en: 'Software · Data Engineering · Cloud/DevOps · BI & AI',
+      es: 'Cuatro dominios de aplicación práctica',
+      en: 'Four applied engineering domains',
     },
-    period: { es: 'Stack Verificado en Producción', en: 'Production-Verified Stack' },
+    period: { es: 'Stack principal', en: 'Core stack' },
     summary: {
-      es: 'Conjunto multidisciplinario orientado a construir sistemas escalables desde la ingesta y transformación de datos hasta interfaces Web 3D y despliegues automatizados.',
-      en: 'Multidisciplinary engineering stack bridging scalable data ingestion and analytics with modern web interfaces and automated cloud deployments.',
+      es: 'Herramientas utilizadas en proyectos académicos y laborales para cubrir desde el diseño de esquemas e ingesta de datos hasta interfaces web e infraestructura automatizada.',
+      en: 'Tools applied across industry internships and university engineering projects, spanning schema design, data pipelines, web interfaces, and CI/CD infrastructure.',
     },
     highlights: {
       es: [
-        'Lenguajes y Frameworks: Python (FastAPI, Django), JavaScript/TypeScript (React, Angular).',
-        'Ingeniería de Datos: Apache Airflow, dbt, Polars, Pandas, Databricks, ETL/ELT.',
-        'Bases de Datos y BI: SQL, NoSQL, Redis, Power BI, Tableau, Looker.',
-        'Cloud, DevOps e IA: AWS, GCP, Docker, Kubernetes, GitHub Actions, Jenkins, ML y PLN.',
+        'Lenguajes y frameworks: Python (FastAPI, Django), JavaScript y TypeScript (React, Angular).',
+        'Ingeniería de datos: Apache Airflow, dbt, Polars, Pandas, Databricks y diseño ETL/ELT.',
+        'Almacenamiento y BI: SQL, NoSQL, Redis, Power BI, Tableau y Looker.',
+        'Infraestructura e IA: AWS, GCP, Docker, Kubernetes, GitHub Actions, Jenkins, aprendizaje automático y PLN.',
       ],
       en: [
-        'Languages & Frameworks: Python (FastAPI, Django), JavaScript/TypeScript (React, Angular).',
-        'Data Engineering: Apache Airflow, dbt, Polars, Pandas, Databricks, ETL/ELT.',
-        'Databases & BI: SQL, NoSQL, Redis, Power BI, Tableau, Looker.',
-        'Cloud, DevOps & AI: AWS, GCP, Docker, Kubernetes, GitHub Actions, Jenkins, ML & NLP.',
+        'Languages and frameworks: Python (FastAPI, Django), JavaScript and TypeScript (React, Angular).',
+        'Data engineering: Apache Airflow, dbt, Polars, Pandas, Databricks, and ETL/ELT architecture.',
+        'Databases and BI: SQL, NoSQL, Redis, Power BI, Tableau, and Looker.',
+        'Cloud, DevOps and AI: AWS, GCP, Docker, Kubernetes, GitHub Actions, Jenkins, ML, and NLP.',
       ],
     },
-    stack: ['FastAPI', 'Django', 'React', 'Airflow', 'dbt', 'Polars', 'Docker', 'Kubernetes', 'ML/PLN'],
-    architectureNote: {
-      es: 'Cuatro pilares modulares representan las áreas de dominio técnico del CV.',
-      en: 'Four modular pillars represent the core engineering domains listed in the resume.',
+    stack: ['FastAPI', 'Django', 'React', 'Airflow', 'dbt', 'Polars', 'Docker', 'Kubernetes', 'ML / PLN'],
+    sceneContext: {
+      es: 'Cuatro monolitos escalonados en el perímetro de la plataforma reflejan cada bloque de competencia técnica.',
+      en: 'Four stepped architectural plinths around the platform perimeter correspond to each engineering domain.',
     },
-    metrics: [
-      { label: { es: 'Metodologías', en: 'Methodologies' }, value: 'SCRUM + SDD' },
-      { label: { es: 'Cloud', en: 'Cloud' }, value: 'AWS + GCP' },
-      { label: { es: 'CI/CD', en: 'CI/CD' }, value: 'Actions + Jenkins' },
+    facts: [
+      {
+        label: { es: 'Metodologías', en: 'Methodologies' },
+        value: { es: 'SCRUM y Spec-Driven Dev', en: 'SCRUM & Spec-Driven Dev' },
+      },
+      {
+        label: { es: 'Plataformas nube', en: 'Cloud platforms' },
+        value: { es: 'AWS y Google Cloud', en: 'AWS & Google Cloud' },
+      },
+      {
+        label: { es: 'Automatización', en: 'Automation' },
+        value: { es: 'GitHub Actions y Jenkins', en: 'GitHub Actions & Jenkins' },
+      },
     ],
   },
   'certifications-totem': {
     id: 'certifications-totem',
     stationId: 'habilidades',
-    badge: { es: 'FORMACIÓN & CERTIFICACIONES', en: 'EDUCATION & CERTIFICATIONS' },
+    category: { es: 'Formación y certificaciones', en: 'Education & certifications' },
+    actionLabel: { es: 'Formación (10)', en: 'Education (10)' },
     title: {
-      es: 'Formación Académica y Certificaciones (2021–2026)',
-      en: 'Academic Background & Certifications (2021–2026)',
+      es: 'Historial Académico y Certificaciones (2021 a 2026)',
+      en: 'Academic Record & Certifications (2021 to 2026)',
     },
     organization: {
-      es: 'Univalle · U. Rosario · AWS Academy · MinTIC · DataCamp',
-      en: 'Univalle · U. Rosario · AWS Academy · MinTIC · DataCamp',
+      es: 'Univalle, U. del Rosario, AWS Academy, MinTIC, DataCamp',
+      en: 'Univalle, U. del Rosario, AWS Academy, MinTIC, DataCamp',
     },
-    period: { es: '2021 — 2026', en: '2021 — 2026' },
+    period: { es: '2021 a 2026', en: '2021 to 2026' },
     summary: {
-      es: 'Formación continua en ingeniería de sistemas, inteligencia artificial, analítica de datos y arquitectura en la nube.',
-      en: 'Continuous education across systems engineering, artificial intelligence, data analytics, and cloud architecture.',
+      es: 'Registro cronológico de formación universitaria, bootcamps y programas técnicos cursados entre 2021 y 2026.',
+      en: 'Chronological record of university coursework, bootcamps, and technical certifications completed from 2021 through 2026.',
     },
     highlights: {
       es: [
-        '2026 · Ingeniería de Sistemas (Noveno semestre aprobado) — Universidad del Valle.',
-        '2026 · Inteligencia Artificial (Samsung Innovation Campus) — Universidad del Rosario.',
-        '2026 · Bootcamp en Análisis de Datos — MinTIC (TalentoTech).',
-        '2026 · Track Qversity: 20+ Cursos — DataCamp.',
-        '2025 · Cloud Foundations & Data Engineering — AWS Academy.',
-        '2024 · Fundamentos de Computación en la Nube GCP — Universidad del Valle.',
-        '2023 · Lenguaje de Programación JavaScript — Universidad Distrital Francisco José de Caldas.',
-        '2023 · Fund. de Programación para Aplicaciones Móviles — Alcaldía de Santiago de Cali.',
-        '2022 · Fundamentos en Analítica de Datos — Correlation One.',
-        '2021 · Fundamentos de Programación — Universidad Tecnológica de Pereira.',
+        '2026 · Ingeniería de Sistemas (noveno semestre aprobado) en Universidad del Valle.',
+        '2026 · Inteligencia Artificial (Samsung Innovation Campus) en Universidad del Rosario.',
+        '2026 · Bootcamp en Análisis de Datos en MinTIC (TalentoTech).',
+        '2026 · Track Qversity (más de 20 cursos) en DataCamp.',
+        '2025 · Cloud Foundations y Data Engineering en AWS Academy.',
+        '2024 · Fundamentos de Computación en la Nube GCP en Universidad del Valle.',
+        '2023 · Lenguaje de Programación JavaScript en Universidad Distrital Francisco José de Caldas.',
+        '2023 · Fundamentos de Programación para Aplicaciones Móviles en Alcaldía de Santiago de Cali.',
+        '2022 · Fundamentos en Analítica de Datos en Correlation One.',
+        '2021 · Fundamentos de Programación en Universidad Tecnológica de Pereira.',
       ],
       en: [
-        '2026 · Systems Engineering (9th semester completed) — Universidad del Valle.',
-        '2026 · Artificial Intelligence (Samsung Innovation Campus) — Universidad del Rosario.',
-        '2026 · Data Analytics Bootcamp — MinTIC (TalentoTech).',
-        '2026 · Qversity Track: 20+ Courses — DataCamp.',
-        '2025 · Cloud Foundations & Data Engineering — AWS Academy.',
-        '2024 · GCP Cloud Computing Foundations — Universidad del Valle.',
-        '2023 · JavaScript Programming Language — Universidad Distrital Francisco José de Caldas.',
-        '2023 · Mobile Application Programming Foundations — Alcaldía de Santiago de Cali.',
-        '2022 · Data Analytics Foundations — Correlation One.',
-        '2021 · Programming Foundations — Universidad Tecnológica de Pereira.',
+        '2026 · Systems Engineering (9th semester completed) at Universidad del Valle.',
+        '2026 · Artificial Intelligence (Samsung Innovation Campus) at Universidad del Rosario.',
+        '2026 · Data Analytics Bootcamp at MinTIC (TalentoTech).',
+        '2026 · Qversity Track (20+ courses) on DataCamp.',
+        '2025 · Cloud Foundations and Data Engineering at AWS Academy.',
+        '2024 · GCP Cloud Computing Foundations at Universidad del Valle.',
+        '2023 · JavaScript Programming Language at Universidad Distrital Francisco José de Caldas.',
+        '2023 · Mobile Application Programming Foundations at Alcaldía de Santiago de Cali.',
+        '2022 · Data Analytics Foundations at Correlation One.',
+        '2021 · Programming Foundations at Universidad Tecnológica de Pereira.',
       ],
     },
     stack: ['Univalle', 'AWS Academy', 'GCP', 'Samsung AI', 'MinTIC', 'DataCamp', 'Correlation One', 'UTP'],
-    architectureNote: {
-      es: 'Tótem luminoso con anillos estratificados por año de certificación (2021 a 2026).',
-      en: 'Illuminated totem with stratified rings representing certification milestones (2021 to 2026).',
+    sceneContext: {
+      es: 'Columna central con seis placas cronológicas en latón que representan los hitos anuales de 2021 a 2026.',
+      en: 'Central column featuring six horizontal brass milestone plates spanning 2021 through 2026.',
     },
-    metrics: [
-      { label: { es: 'Registros', en: 'Credentials' }, value: '10 Certs' },
-      { label: { es: 'Cursos DataCamp', en: 'DataCamp' }, value: '20+ Tracks' },
-      { label: { es: 'Nube', en: 'Cloud' }, value: 'AWS + GCP' },
+    facts: [
+      {
+        label: { es: 'Registros', en: 'Records' },
+        value: { es: '10 certificaciones verificables', en: '10 verifiable credentials' },
+      },
+      {
+        label: { es: 'Especialización', en: 'Specialization' },
+        value: { es: 'Datos, Nube e IA', en: 'Data, Cloud & AI' },
+      },
+      {
+        label: { es: 'DataCamp Qversity', en: 'DataCamp Qversity' },
+        value: { es: 'Más de 20 cursos aprobados', en: '20+ completed courses' },
+      },
     ],
   },
   'projects-web3d': {
     id: 'projects-web3d',
     stationId: 'proyectos',
-    badge: { es: 'PROYECTO DESTACADO · WEB 3D', en: 'FEATURED PROJECT · WEB 3D' },
+    category: { es: 'Proyecto Web 3D', en: 'Web 3D project' },
+    actionLabel: { es: 'Arquitectura Web 3D', en: 'Web 3D architecture' },
     title: {
-      es: 'Portafolio Web 3D & Pipeline GLB/DRACO',
-      en: 'Web 3D Portfolio & GLB/DRACO Pipeline',
+      es: 'Portafolio Espacial WebGL2 y Pipeline GLB/DRACO',
+      en: 'WebGL2 Spatial Portfolio & GLB/DRACO Pipeline',
     },
     organization: {
-      es: 'Arquitectura React + Three.js + TypeScript Estricto',
-      en: 'React + Three.js + Strict TypeScript Architecture',
+      es: 'React, Three.js y TypeScript estricto',
+      en: 'React, Three.js & Strict TypeScript',
     },
     period: { es: 'Sprints 1 y 2 · 2026', en: 'Sprints 1 & 2 · 2026' },
     summary: {
-      es: 'Motor espacial interactivo ejecutado sobre WebGL2 con SRGBColorSpace, ACESFilmicToneMapping, cámara cinemática GSAP, raycasting por capas y compresión automatizada DRACO + WebP.',
-      en: 'Interactive spatial WebGL2 engine featuring SRGBColorSpace, ACESFilmicToneMapping, GSAP cinematic camera transitions, layer-filtered raycasting, and automated DRACO + WebP asset compression.',
+      es: 'Aplicación 3D interactiva ejecutada sobre WebGL2 con gestión cromática ACESFilmic, cámara orbital restringida, transiciones GSAP, raycasting por capas y optimización de geometría y texturas en build.',
+      en: 'Interactive 3D application running on WebGL2 with ACESFilmic tone mapping, constrained orbital camera, GSAP waypoint flights, layer-filtered raycasting, and automated build-time asset compression.',
     },
     highlights: {
       es: [
-        'Cámara orbital restringida (15°–85°, damping 0.05) + trayectorias cinemáticas GSAP 1.8s power3.inOut.',
-        'Raycasting aislado en capa interactiva (THREE.Layers = 1) con outline cian selectivo y escala suave +5%.',
-        'Shaders GLSL nativos (.vert / .frag) compilados vía vite-plugin-glsl para cuadrícula blueprint y pulsos ETL.',
-        'Pipeline @gltf-transform con compresión DRACO + texturas WebP (<18k tris/estación, >60% reducción de peso).',
+        'Cámara orbital restringida entre 15 y 85 grados con damping 0.05 y vuelos GSAP de 1.8 segundos.',
+        'Raycasting aislado en la capa interactiva (Layer 1) para minimizar intersecciones por cuadro.',
+        'Shaders GLSL propios (.vert y .frag) para retícula arquitectónica del suelo y pulsos de tuberías ETL.',
+        'Compresión automatizada con @gltf-transform (malla DRACO y texturas WebP) bajo tope de 18k triángulos por modelo.',
       ],
       en: [
-        'Constrained orbital controls (15°–85°, damping 0.05) paired with 1.8s GSAP power3.inOut camera flights.',
-        'Layer-isolated raycasting (THREE.Layers = 1) driving selective cyan outlines and smooth +5% hover scale.',
-        'Native GLSL shaders (.vert / .frag) imported via vite-plugin-glsl for blueprint grid and ETL fiber pulses.',
-        'Automated @gltf-transform pipeline applying DRACO geometry compression and WebP textures (<18k tris/station).',
+        'Orbital controls constrained between 15 and 85 degrees (damping 0.05) paired with 1.8s GSAP transitions.',
+        'Layer-isolated raycasting (Layer 1) keeping frame hover checks below 2ms.',
+        'Custom GLSL shaders (.vert and .frag) driving the architectural floor grid and ETL flow conduits.',
+        'Automated @gltf-transform optimization applying DRACO mesh compression and WebP textures under 18k triangles.',
       ],
     },
     stack: ['React 18', 'TypeScript', 'R3F', 'Three.js', 'GSAP', 'GLSL', 'gltf-transform', 'DRACO'],
-    architectureNote: {
-      es: 'Cumple íntegramente PW3D-7 a PW3D-12 y refleja la arquitectura modular por capas de Skyshield.',
-      en: 'Satisfies PW3D-7 through PW3D-12 and adopts the modular scene separation pattern from Skyshield.',
+    sceneContext: {
+      es: 'Escultura poliédrica montada sobre soporte cardán izquierdo representando la calibración de mallas 3D.',
+      en: 'Faceted polyhedral calibration piece mounted on the left brass gimbal cradle.',
     },
-    metrics: [
-      { label: { es: 'Presupuesto', en: 'Budget' }, value: '<18k tris' },
-      { label: { es: 'Compresión', en: 'Compression' }, value: '>60% DRACO' },
-      { label: { es: 'Raycaster', en: 'Raycaster' }, value: '<2ms / frame' },
+    facts: [
+      {
+        label: { es: 'Presupuesto de malla', en: 'Polygon budget' },
+        value: { es: 'Menor a 18k tris por estación', en: 'Under 18k tris per station' },
+      },
+      {
+        label: { es: 'Compresión GLB', en: 'GLB compression' },
+        value: { es: 'DRACO + WebP (>60% ahorro)', en: 'DRACO + WebP (>60% smaller)' },
+      },
+      {
+        label: { es: 'Validación Khronos', en: 'Asset validation' },
+        value: { es: '0 errores gltf-transform', en: '0 gltf-transform errors' },
+      },
     ],
     links: [
       {
-        label: { es: 'Repositorio GitHub', en: 'GitHub Repository' },
+        label: { es: 'Ver repositorio en GitHub', en: 'View repository on GitHub' },
         href: 'https://github.com/cantor11/web3D-project',
         external: true,
+        primary: true,
       },
     ],
   },
   'projects-data': {
     id: 'projects-data',
     stationId: 'proyectos',
-    badge: { es: 'PROYECTO · DATA & FULL-STACK', en: 'PROJECT · DATA & FULL-STACK' },
+    category: { es: 'Proyecto Datos y Backend', en: 'Data & backend project' },
+    actionLabel: { es: 'Sistemas de datos', en: 'Data systems' },
     title: {
-      es: 'Arquitecturas ETL, Auditoría de Paridad & APIs',
-      en: 'ETL Architectures, Parity Auditing & APIs',
+      es: 'Arquitecturas ETL, Paridad y Servicios API',
+      en: 'ETL Architectures, Data Parity & APIs',
     },
     organization: {
-      es: 'Ecosistema Python · Airflow · Polars · FastAPI',
-      en: 'Python · Airflow · Polars · FastAPI Ecosystem',
+      es: 'Ecosistema Python, Airflow, Polars y FastAPI',
+      en: 'Python, Airflow, Polars & FastAPI ecosystem',
     },
-    period: { es: '2024 — 2026', en: '2024 — 2026' },
+    period: { es: '2024 a 2026', en: '2024 to 2026' },
     summary: {
-      es: 'Soluciones orientadas a integridad de datos, migración de esquemas, tableros BI y servicios backend escalables desplegados con contenedores.',
-      en: 'Production solutions centered on data integrity, schema migrations, BI dashboards, and containerized backend services.',
+      es: 'Sistemas orientados a integridad entre fuentes relacionales y tabulares, automatización de pruebas de paridad, tableros operativos y servicios REST contenerizados.',
+      en: 'Systems focused on cross-source data integrity, automated parity verification, operational dashboards, and containerized REST APIs.',
     },
     highlights: {
       es: [
-        'Orquestación de flujos batch y validación cruzada de paridad entre motores SQL y DataFrames Polars.',
-        'Servicios REST con FastAPI/Django integrados a aplicaciones cliente web y móviles.',
-        'Contenerización reproducible con Docker y automatización CI/CD en GitHub Actions y Jenkins.',
+        'Orquestación por lotes y verificación automática de paridad entre motores SQL y DataFrames Polars.',
+        'Exposición de endpoints REST en FastAPI y Django para clientes web y móviles.',
+        'Empaquetado reproducible con Docker y pipelines de integración en GitHub Actions y Jenkins.',
       ],
       en: [
-        'Batch DAG orchestration and cross-source parity verification between SQL stores and Polars DataFrames.',
-        'REST services built with FastAPI/Django integrated into web and mobile client applications.',
-        'Reproducible containerization with Docker and CI/CD automation using GitHub Actions and Jenkins.',
+        'Batch DAG scheduling and automated parity checks between SQL stores and Polars DataFrames.',
+        'REST service delivery with FastAPI and Django powering web and mobile frontends.',
+        'Reproducible Docker environments alongside CI/CD pipelines in GitHub Actions and Jenkins.',
       ],
     },
-    stack: ['Python', 'Polars', 'Airflow', 'FastAPI', 'Docker', 'PostgreSQL', 'Redis'],
-    architectureNote: {
-      es: 'Nodos acoplados en estación 4 mostrando el flujo de ingestión, transformación y exposición API.',
-      en: 'Coupled nodes at station 4 illustrating ingestion, transformation, and API delivery.',
+    stack: ['Python', 'Polars', 'Apache Airflow', 'FastAPI', 'Docker', 'PostgreSQL', 'Redis'],
+    sceneContext: {
+      es: 'Ensamblaje modular derecho de tres etapas conectadas por tuberías de cobre que ilustra ingesta, transformación y entrega API.',
+      en: 'Right-hand three-stage manifold assembly depicting data ingestion, Polars transformation, and API delivery.',
     },
-    metrics: [
-      { label: { es: 'Motor', en: 'Engine' }, value: 'Polars + SQL' },
-      { label: { es: 'Backend', en: 'Backend' }, value: 'FastAPI / Django' },
-      { label: { es: 'Ops', en: 'Ops' }, value: 'Docker + CI/CD' },
+    facts: [
+      {
+        label: { es: 'Procesamiento', en: 'Processing' },
+        value: { es: 'Polars, Pandas y SQL', en: 'Polars, Pandas & SQL' },
+      },
+      {
+        label: { es: 'Backend', en: 'Backend' },
+        value: { es: 'FastAPI y Django', en: 'FastAPI & Django' },
+      },
+      {
+        label: { es: 'Empaquetado', en: 'Packaging' },
+        value: { es: 'Docker y CI/CD', en: 'Docker & CI/CD' },
+      },
     ],
   },
   'contact-terminal': {
     id: 'contact-terminal',
     stationId: 'contacto',
-    badge: { es: 'ESTACIÓN 05 · CONTACTO & REFERENCIAS', en: 'STATION 05 · CONTACT & REFERENCES' },
+    category: { es: 'Contacto y referencias', en: 'Contact & references' },
+    actionLabel: { es: 'Canales y referencias', en: 'Contact & references' },
     title: {
-      es: 'Canales Directos y Referencias Profesionales',
-      en: 'Direct Channels & Professional References',
+      es: 'Contacto Directo y Referencias Profesionales',
+      en: 'Direct Contact & Professional References',
     },
     organization: {
-      es: 'Disponible para Ingeniería de Software, Datos e IA',
-      en: 'Available for Software, Data & AI Engineering Roles',
+      es: 'Disponible para roles de Software, Datos e IA',
+      en: 'Available for Software, Data & AI Engineering',
     },
     period: { es: 'Cali, Colombia · Remoto / Híbrido', en: 'Cali, Colombia · Remote / Hybrid' },
     summary: {
-      es: 'Contacto directo con Junior Orlando Cantor Arévalo, descarga oficial de hoja de vida en PDF y referencias verificables en la industria.',
-      en: 'Direct reach to Junior Orlando Cantor Arévalo, official PDF resume download, and verifiable industry references.',
+      es: 'Canales directos de contacto, descarga de hoja de vida oficial en PDF y tres referencias profesionales verificables en la industria.',
+      en: 'Direct communication channels, official PDF resume download, and three verifiable industry references.',
     },
     highlights: {
       es: [
-        'Correo: junior.cantor11@gmail.com · Teléfono: +57 302 211 3532.',
-        'Referencia 1: Anderson Alban Angulo — Software Analyst, Global System Solutions (+57 320 962 2683).',
-        'Referencia 2: Jhonny Esteban Cantor — Implementation Analyst, Double V Partners (+57 320 670 7707).',
-        'Referencia 3: Christian Hoyos Salazar — Front-End Developer, Smarthink Consulting Group (+57 311 705 1904).',
+        'Correo electrónico: junior.cantor11@gmail.com · Teléfono: +57 302 211 3532.',
+        'Referencia: Anderson Alban Angulo, Software Analyst en Global System Solutions (+57 320 962 2683).',
+        'Referencia: Jhonny Esteban Cantor, Implementation Analyst en Double V Partners (+57 320 670 7707).',
+        'Referencia: Christian Hoyos Salazar, Front-End Developer en Smarthink Consulting Group (+57 311 705 1904).',
       ],
       en: [
         'Email: junior.cantor11@gmail.com · Phone: +57 302 211 3532.',
-        'Reference 1: Anderson Alban Angulo — Software Analyst, Global System Solutions (+57 320 962 2683).',
-        'Reference 2: Jhonny Esteban Cantor — Implementation Analyst, Double V Partners (+57 320 670 7707).',
-        'Reference 3: Christian Hoyos Salazar — Front-End Developer, Smarthink Consulting Group (+57 311 705 1904).',
+        'Reference: Anderson Alban Angulo, Software Analyst at Global System Solutions (+57 320 962 2683).',
+        'Reference: Jhonny Esteban Cantor, Implementation Analyst at Double V Partners (+57 320 670 7707).',
+        'Reference: Christian Hoyos Salazar, Front-End Developer at Smarthink Consulting Group (+57 311 705 1904).',
       ],
     },
-    stack: ['Email Directo', 'LinkedIn', 'GitHub', 'CV PDF'],
-    architectureNote: {
-      es: 'Terminal de enlace profesional con acceso inmediato a descarga de CV y canales de comunicación.',
-      en: 'Professional communication terminal providing direct resume download and contact channels.',
+    stack: ['Correo directo', 'GitHub', 'LinkedIn', 'CV PDF'],
+    sceneContext: {
+      es: 'Atril arquitectónico con lámina impresa de la hoja de vida y baliza direccional de contacto.',
+      en: 'Architectural lectern displaying the printed resume plate alongside a copper contact resonator.',
     },
-    metrics: [
-      { label: { es: 'Ubicación', en: 'Location' }, value: 'Cali, CO' },
-      { label: { es: 'Correo', en: 'Email' }, value: 'junior.cantor11@gmail.com' },
-      { label: { es: 'Tel', en: 'Phone' }, value: '+57 302 211 3532' },
+    facts: [
+      {
+        label: { es: 'Ubicación', en: 'Location' },
+        value: { es: 'Cali, Colombia', en: 'Cali, Colombia' },
+      },
+      {
+        label: { es: 'Correo', en: 'Email' },
+        value: { es: 'junior.cantor11@gmail.com', en: 'junior.cantor11@gmail.com' },
+      },
+      {
+        label: { es: 'Teléfono', en: 'Phone' },
+        value: { es: '+57 302 211 3532', en: '+57 302 211 3532' },
+      },
     ],
     links: [
       {
-        label: { es: 'Enviar Correo', en: 'Send Email' },
+        label: { es: 'Escribir correo', en: 'Send email' },
         href: 'mailto:junior.cantor11@gmail.com?subject=Contacto%20Portafolio%20Web%203D',
         external: false,
+        primary: true,
       },
       {
-        label: { es: 'Descargar CV (PDF)', en: 'Download Resume (PDF)' },
+        label: { es: 'Descargar CV (PDF)', en: 'Download resume (PDF)' },
         href: '/cv/Junior_Cantor_CV.pdf',
         external: true,
       },

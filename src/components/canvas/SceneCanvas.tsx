@@ -45,13 +45,13 @@ class CanvasErrorBoundary extends Component<{ children: ReactNode }, BoundarySta
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex h-full w-full items-center justify-center bg-[#090d16] p-6 text-center">
-          <div className="hud-panel max-w-md rounded-xl p-6">
-            <h2 className="font-mono text-sm uppercase tracking-widest text-cyan-400">
-              WebGL2 Fallback
+        <div className="flex h-full w-full items-center justify-center bg-[var(--bg-stage)] p-6 text-center">
+          <div className="studio-surface max-w-md rounded-[8px] p-6">
+            <h2 className="font-display text-lg font-medium text-[var(--text-primary)]">
+              Entorno WebGL2 no disponible
             </h2>
-            <p className="mt-2 text-sm text-slate-300">
-              No fue posible inicializar el contexto WebGL2 en este navegador ({this.state.message}).
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+              El navegador no pudo inicializar la aceleración 3D ({this.state.message}). Recarga la página o habilita la aceleración por hardware.
             </p>
           </div>
         </div>
@@ -71,13 +71,13 @@ export function SceneCanvas({ children }: SceneCanvasProps) {
       <Canvas
         shadows
         dpr={[1, 2]}
-        camera={{ fov: 45, near: 0.1, far: 140, position: [0, 3.4, 7.6] }}
+        camera={{ fov: 45, near: 0.1, far: 140, position: [0, 3.3, 7.2] }}
         gl={{
           antialias: false,
           preserveDrawingBuffer: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.05,
+          toneMappingExposure: 1.02,
           outputColorSpace: THREE.SRGBColorSpace,
         }}
         onCreated={(state) => {
