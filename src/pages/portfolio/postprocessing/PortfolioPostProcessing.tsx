@@ -4,6 +4,28 @@ import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
 export function PortfolioPostProcessing() {
   const isDark = usePortfolioStore((s) => s.theme === 'dark');
+  const qualityPreset = usePortfolioStore((s) => s.qualityPreset);
+
+  if (qualityPreset === 'performance') {
+    return null;
+  }
+
+  if (qualityPreset === 'balanced') {
+    return (
+      <EffectComposer multisampling={0} autoClear={false}>
+        <SMAA />
+        <Outline
+          blur
+          edgeStrength={3.4}
+          pulseSpeed={0}
+          visibleEdgeColor={isDark ? 0xeb8647 : 0xb84a14}
+          hiddenEdgeColor={isDark ? 0x8a4b25 : 0x7a310d}
+          width={520}
+        />
+        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      </EffectComposer>
+    );
+  }
 
   return (
     <EffectComposer multisampling={0} autoClear={false}>

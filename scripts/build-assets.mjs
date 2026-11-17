@@ -187,7 +187,8 @@ function renderContactCvSvg() {
     <text x="58" y="684" fill="#B84A14" font-family="monospace" font-size="14" font-weight="600">CONTACTO DIRECTO</text>
     <text x="58" y="722" fill="#161513" font-family="monospace" font-size="19" font-weight="600">junior.cantor11@gmail.com</text>
     <text x="58" y="756" fill="#161513" font-family="monospace" font-size="19">+57 302 211 3532</text>
-    <text x="58" y="794" fill="#57524A" font-family="monospace" font-size="16">github.com/cantor11 · PDF disponible</text>
+    <text x="58" y="794" fill="#57524A" font-family="monospace" font-size="15">linkedin.com/in/junior-cantor-arevalo</text>
+    <text x="58" y="824" fill="#57524A" font-family="monospace" font-size="15">github.com/cantor11 · PDF disponible</text>
   </svg>`;
 }
 
@@ -689,8 +690,184 @@ async function buildAndOptimize(name, builderFn, pbr, screens) {
   );
 }
 
+async function generateStudioCubemap() {
+  const cubemapDir = path.join(ROOT, 'public', 'cubemap', 'studio');
+  fs.mkdirSync(cubemapDir, { recursive: true });
+
+  const faces = {
+    py: `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+      <rect width="256" height="256" fill="#2A2723"/>
+      <rect x="28" y="28" width="200" height="200" rx="18" fill="#FFF4E4" fill-opacity="0.88"/>
+      <rect x="52" y="52" width="152" height="152" rx="10" fill="#FFFFFF"/>
+    </svg>`,
+    ny: `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+      <rect width="256" height="256" fill="#141311"/>
+      <rect x="16" y="16" width="224" height="224" fill="#1C1A17"/>
+    </svg>`,
+    px: `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#36322C"/>
+          <stop offset="55%" stop-color="#22201C"/>
+          <stop offset="100%" stop-color="#141311"/>
+        </linearGradient>
+      </defs>
+      <rect width="256" height="256" fill="url(#g)"/>
+      <rect x="20" y="36" width="216" height="28" rx="4" fill="#F5E6D3" fill-opacity="0.65"/>
+      <rect x="40" y="116" width="176" height="6" fill="#EB8647" fill-opacity="0.45"/>
+    </svg>`,
+    nx: `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#33373E"/>
+          <stop offset="55%" stop-color="#202226"/>
+          <stop offset="100%" stop-color="#141311"/>
+        </linearGradient>
+      </defs>
+      <rect width="256" height="256" fill="url(#g)"/>
+      <rect x="24" y="42" width="208" height="24" rx="4" fill="#DCE4EE" fill-opacity="0.58"/>
+    </svg>`,
+    pz: `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#35312B"/>
+          <stop offset="60%" stop-color="#1E1C19"/>
+          <stop offset="100%" stop-color="#141311"/>
+        </linearGradient>
+      </defs>
+      <rect width="256" height="256" fill="url(#g)"/>
+      <rect x="32" y="34" width="192" height="22" rx="4" fill="#F3EFE6" fill-opacity="0.52"/>
+    </svg>`,
+    nz: `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2F2C27"/>
+          <stop offset="60%" stop-color="#1B1A17"/>
+          <stop offset="100%" stop-color="#141311"/>
+        </linearGradient>
+      </defs>
+      <rect width="256" height="256" fill="url(#g)"/>
+      <rect x="48" y="44" width="160" height="18" rx="4" fill="#E8D7C3" fill-opacity="0.44"/>
+    </svg>`,
+  };
+
+  for (const [name, svg] of Object.entries(faces)) {
+    await sharp(Buffer.from(svg)).png().toFile(path.join(cubemapDir, `${name}.png`));
+  }
+  console.log('[cubemap] Generated 6-face architectural studio cubemap in public/cubemap/studio/');
+}
+
+async function generateFloorStonePbr() {
+  const size = 512;
+  const albedoRaw = Buffer.alloc(size * size * 4);
+  const roughRaw = Buffer.alloc(size * size * 4);
+  const normalRaw = Buffer.alloc(size * size * 4);
+  const aoRaw = Buffer.alloc(size * size * 4);
+
+  for (let y = 0; y < size; y++) {
+    const tileY = y % 128;
+    const mortarY = tileY < 3 || tileY > 125;
+    for (let x = 0; x < size; x++) {
+      const idx = (y * size + x) * 4;
+      const tileX = x % 128;
+      const mortarX = tileX < 3 || tileX > 125;
+      const isJoint = mortarX || mortarY;
+
+      const wave =
+        Math.sin(x * 0.045 + y * 0.02) * 5 +
+        Math.cos(x * 0.11 - y * 0.09) * 3 +
+        Math.sin((x + y) * 0.23) * 2;
+
+      const val = isJoint ? 168 : Math.max(175, Math.min(242, Math.round(212 + wave)));
+      albedoRaw[idx] = val;
+      albedoRaw[idx + 1] = val - 3;
+      albedoRaw[idx + 2] = val - 8;
+      albedoRaw[idx + 3] = 255;
+
+      const rVal = isJoint ? 228 : Math.max(135, Math.min(215, Math.round(176 - wave * 1.6)));
+      roughRaw[idx] = rVal;
+      roughRaw[idx + 1] = rVal;
+      roughRaw[idx + 2] = rVal;
+      roughRaw[idx + 3] = 255;
+
+      const nx = isJoint ? (mortarX ? 108 : 128) : Math.round(128 + Math.cos(x * 0.15) * 7);
+      const ny = isJoint ? (mortarY ? 108 : 128) : Math.round(128 + Math.sin(y * 0.15) * 7);
+      normalRaw[idx] = nx;
+      normalRaw[idx + 1] = ny;
+      normalRaw[idx + 2] = 250;
+      normalRaw[idx + 3] = 255;
+
+      const ao = isJoint ? 132 : Math.round(224 + Math.sin(x * 0.05) * 10);
+      aoRaw[idx] = ao;
+      aoRaw[idx + 1] = ao;
+      aoRaw[idx + 2] = ao;
+      aoRaw[idx + 3] = 255;
+    }
+  }
+
+  await sharp(albedoRaw, { raw: { width: size, height: size, channels: 4 } })
+    .webp({ quality: 86 })
+    .toFile(path.join(PBR_DIR, 'stone-albedo.webp'));
+  await sharp(roughRaw, { raw: { width: size, height: size, channels: 4 } })
+    .webp({ quality: 86 })
+    .toFile(path.join(PBR_DIR, 'stone-roughness.webp'));
+  await sharp(normalRaw, { raw: { width: size, height: size, channels: 4 } })
+    .webp({ quality: 86 })
+    .toFile(path.join(PBR_DIR, 'stone-normal.webp'));
+  await sharp(aoRaw, { raw: { width: size, height: size, channels: 4 } })
+    .webp({ quality: 86 })
+    .toFile(path.join(PBR_DIR, 'stone-ao.webp'));
+
+  console.log('[pbr] Generated 512x512 honed stone floor PBR maps (WebP)');
+}
+
+async function generateOgCoverCard() {
+  const ogSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <rect width="1200" height="630" fill="#11100E"/>
+    <rect x="44" y="44" width="1112" height="542" rx="10" fill="#161513" stroke="#34312B" stroke-width="2"/>
+    <rect x="44" y="44" width="1112" height="6" fill="#EB8647"/>
+
+    <text x="96" y="132" fill="#EB8647" font-family="monospace" font-size="18" font-weight="600">PORTAFOLIO INTERACTIVO WEB 3D · CALI, COLOMBIA</text>
+    <text x="96" y="218" fill="#F3EFE6" font-family="Georgia, serif" font-size="64" font-weight="600">Junior Orlando Cantor Arévalo</text>
+    <text x="96" y="274" fill="#B5AFA4" font-family="sans-serif" font-size="28">Ingeniería de Sistemas · Software Full-Stack, Ingeniería de Datos y WebGL2</text>
+
+    <line x1="96" y1="318" x2="1104" y2="318" stroke="#34312B" stroke-width="2"/>
+
+    <g transform="translate(96, 356)">
+      <rect width="312" height="124" rx="6" fill="#1E1D1A" stroke="#34312B" stroke-width="2"/>
+      <text x="24" y="42" fill="#EB8647" font-family="monospace" font-size="15">01 EXPERIENCIA EN DATOS</text>
+      <text x="24" y="76" fill="#F3EFE6" font-family="sans-serif" font-size="22" font-weight="600">Uplanner</text>
+      <text x="24" y="104" fill="#B5AFA4" font-family="monospace" font-size="15">Airflow · Polars · Streamlit</text>
+    </g>
+
+    <g transform="translate(444, 356)">
+      <rect width="312" height="124" rx="6" fill="#1E1D1A" stroke="#34312B" stroke-width="2"/>
+      <text x="24" y="42" fill="#5CB88D" font-family="monospace" font-size="15">02 DESARROLLO MÓVIL Y REST</text>
+      <text x="24" y="76" fill="#F3EFE6" font-family="sans-serif" font-size="22" font-weight="600">Global System Solutions</text>
+      <text x="24" y="104" fill="#B5AFA4" font-family="monospace" font-size="15">APIs REST · Auth · Producción</text>
+    </g>
+
+    <g transform="translate(792, 356)">
+      <rect width="312" height="124" rx="6" fill="#1E1D1A" stroke="#34312B" stroke-width="2"/>
+      <text x="24" y="42" fill="#EB8647" font-family="monospace" font-size="15">03 FORMACIÓN Y ARQUITECTURA</text>
+      <text x="24" y="76" fill="#F3EFE6" font-family="sans-serif" font-size="22" font-weight="600">Universidad del Valle</text>
+      <text x="24" y="104" fill="#B5AFA4" font-family="monospace" font-size="15">React · Three.js · AWS · GCP</text>
+    </g>
+
+    <text x="96" y="542" fill="#B5AFA4" font-family="monospace" font-size="17">linkedin.com/in/junior-cantor-arevalo · github.com/cantor11 · junior.cantor11@gmail.com</text>
+  </svg>`;
+
+  await sharp(Buffer.from(ogSvg))
+    .png()
+    .toFile(path.join(ROOT, 'public', 'og-cover.png'));
+  console.log('[seo] Generated 1200x630 Open Graph cover at public/og-cover.png');
+}
+
 async function main() {
   copyDracoDecoders();
+  await generateStudioCubemap();
+  await generateFloorStonePbr();
+  await generateOgCoverCard();
   const screens = await prepareScreenTextures();
   const pbr = await generatePbrTextures();
 
