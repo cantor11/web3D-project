@@ -98,16 +98,31 @@ describe('HUD, Theme Switcher, Graphics Config, Email Composer & DetailDialog25D
     expect(NODE_DETAILS['certifications-totem'].highlights.es).toHaveLength(10);
     expect(NODE_DETAILS['certifications-totem'].highlights.en).toHaveLength(10);
 
-    // Open Contact terminal modal and verify LinkedIn + Frontend Email Composer validation & submit
+    // Open Contact terminal modal -> main overview should show References without Email Composer stacked beside it
     act(() => {
-      usePortfolioStore.getState().selectNode('contact-terminal', { openComposer: true });
+      usePortfolioStore.getState().selectNode('contact-terminal');
     });
+
+    expect(screen.getByRole('heading', { name: /Referencias profesionales/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Preparar y enviar correo/i })).not.toBeInTheDocument();
 
     const linkedinLink = screen.getByRole('link', { name: /LinkedIn/i });
     expect(linkedinLink).toHaveAttribute(
       'href',
       'https://www.linkedin.com/in/junior-cantor-arevalo/',
     );
+
+    // Click "Escribir correo" -> replaces dialog view with dedicated Email Composer + Back button
+    fireEvent.click(screen.getByRole('button', { name: /Escribir correo/i }));
+    const backBtn = screen.getByRole('button', { name: /Volver a canales y referencias/i });
+    expect(backBtn).toBeInTheDocument();
+
+    // Clicking Back returns to Contact overview + References
+    fireEvent.click(backBtn);
+    expect(screen.getByRole('heading', { name: /Referencias profesionales/i })).toBeInTheDocument();
+
+    // Re-open Composer, validate empty submit, fill fields, and prepare draft
+    fireEvent.click(screen.getByRole('button', { name: /Escribir correo/i }));
 
     const submitBtn = screen.getByRole('button', { name: /Preparar y enviar correo/i });
     fireEvent.click(submitBtn);
@@ -124,7 +139,7 @@ describe('HUD, Theme Switcher, Graphics Config, Email Composer & DetailDialog25D
     fireEvent.change(screen.getByLabelText(/Asunto/i), {
       target: { value: 'Oportunidad Full-Stack / Backend' },
     });
-    fireEvent.change(screen.getByLabelText(/Mensaje/i), {
+    fireEvent.change(screen.getByLabelText(/^Mensaje$/i), {
       target: {
         value: 'Hola Junior, nos interesa conversar sobre una vacante de ingeniería de software.',
       },

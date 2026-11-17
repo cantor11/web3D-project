@@ -100,6 +100,8 @@ describe('Portfolio spatial configuration & state machine', () => {
 
     const serializedData = JSON.stringify({ PROFILE, STATIONS, NODE_DETAILS });
     expect(serializedData).not.toContain('\u2014');
+    // Phone numbers belong in downloadable PDF CV rather than scraped JSON metadata
+    expect(serializedData).not.toMatch(/\+57\s*3\d{2}/);
 
     // Quality preset step-down & manual override
     usePortfolioStore.getState().setQualityPreset('ultra');

@@ -52,7 +52,9 @@ export interface NodeDetail {
   organization: LocalizedText;
   period: LocalizedText;
   summary: LocalizedText;
+  highlightsTitle?: LocalizedText;
   highlights: { es: string[]; en: string[] };
+  highlightsFooterNote?: LocalizedText;
   stack: string[];
   sceneContext: LocalizedText;
   facts: { label: LocalizedText; value: LocalizedText }[];
@@ -148,7 +150,6 @@ export const PROFILE = {
   },
   university: 'Universidad del Valle, Cali',
   email: 'junior.cantor11@gmail.com',
-  phone: '+57 302 211 3532',
   location: 'Cali, Colombia',
   languages: {
     es: 'Español nativo, inglés B2',
@@ -355,6 +356,10 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
       es: 'Herramientas utilizadas en proyectos académicos y laborales para cubrir desde el diseño de esquemas e ingesta de datos hasta interfaces web e infraestructura automatizada.',
       en: 'Tools applied across industry internships and university engineering projects, spanning schema design, data pipelines, web interfaces, and CI/CD infrastructure.',
     },
+    highlightsTitle: {
+      es: 'Dominios de ingeniería',
+      en: 'Engineering domains',
+    },
     highlights: {
       es: [
         'Lenguajes y frameworks: Python (FastAPI, Django), JavaScript y TypeScript (React, Angular).',
@@ -408,6 +413,10 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
     summary: {
       es: 'Registro cronológico de formación universitaria, bootcamps y programas técnicos cursados entre 2021 y 2026.',
       en: 'Chronological record of university coursework, bootcamps, and technical certifications completed from 2021 through 2026.',
+    },
+    highlightsTitle: {
+      es: 'Certificaciones y estudios (2021 a 2026)',
+      en: 'Certifications & education (2021 to 2026)',
     },
     highlights: {
       es: [
@@ -586,24 +595,28 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
     },
     period: { es: 'Cali, Colombia · Remoto / Híbrido', en: 'Cali, Colombia · Remote / Hybrid' },
     summary: {
-      es: 'Redacción directa de correo desde el portafolio, perfil oficial de LinkedIn, descarga de hoja de vida en PDF y tres referencias profesionales verificables en la industria.',
-      en: 'Direct in-app email composer, official LinkedIn profile, PDF resume download, and three verifiable industry references.',
+      es: 'Canales directos de contacto, acceso a LinkedIn y GitHub, redacción de correo desde el navegador, referencias profesionales y descarga de hoja de vida en PDF.',
+      en: 'Direct contact channels, LinkedIn and GitHub profiles, in-app email composer, professional references, and PDF resume download.',
+    },
+    highlightsTitle: {
+      es: 'Referencias profesionales',
+      en: 'Professional references',
     },
     highlights: {
       es: [
-        'Correo electrónico: junior.cantor11@gmail.com · Teléfono: +57 302 211 3532.',
-        'LinkedIn oficial: linkedin.com/in/junior-cantor-arevalo.',
-        'Referencia: Anderson Alban Angulo, Software Analyst en Global System Solutions (+57 320 962 2683).',
-        'Referencia: Jhonny Esteban Cantor, Implementation Analyst en Double V Partners (+57 320 670 7707).',
-        'Referencia: Christian Hoyos Salazar, Front-End Developer en Smarthink Consulting Group (+57 311 705 1904).',
+        'Anderson Alban Angulo · Software Analyst en Global System Solutions.',
+        'Jhonny Esteban Cantor · Implementation Analyst en Double V Partners.',
+        'Christian Hoyos Salazar · Front-End Developer en Smarthink Consulting Group.',
       ],
       en: [
-        'Email: junior.cantor11@gmail.com · Phone: +57 302 211 3532.',
-        'Official LinkedIn: linkedin.com/in/junior-cantor-arevalo.',
-        'Reference: Anderson Alban Angulo, Software Analyst at Global System Solutions (+57 320 962 2683).',
-        'Reference: Jhonny Esteban Cantor, Implementation Analyst at Double V Partners (+57 320 670 7707).',
-        'Reference: Christian Hoyos Salazar, Front-End Developer at Smarthink Consulting Group (+57 311 705 1904).',
+        'Anderson Alban Angulo · Software Analyst at Global System Solutions.',
+        'Jhonny Esteban Cantor · Implementation Analyst at Double V Partners.',
+        'Christian Hoyos Salazar · Front-End Developer at Smarthink Consulting Group.',
       ],
+    },
+    highlightsFooterNote: {
+      es: 'Los números telefónicos de contacto directo y verificación de referencias se encuentran en la hoja de vida descargable en PDF.',
+      en: 'Direct phone contact and reference phone numbers are included in the downloadable PDF resume.',
     },
     stack: ['LinkedIn', 'Correo directo', 'GitHub', 'CV PDF'],
     sceneContext: {
