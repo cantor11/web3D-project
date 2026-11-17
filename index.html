@@ -3,21 +3,119 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#11100e" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
+    <meta name="author" content="Junior Orlando Cantor Arévalo" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta
+      name="keywords"
+      content="Junior Cantor, Junior Orlando Cantor Arévalo, Ingeniería de Sistemas, Universidad del Valle, Ingeniería de Datos, Apache Airflow, Polars, Python, FastAPI, React, Three.js, WebGL2, Portafolio 3D, Cali Colombia"
+    />
     <meta
       name="description"
-      content="Portafolio Web 3D interactivo de Junior Orlando Cantor Arévalo. Ingeniería de Sistemas, Ingeniería de Datos con Airflow y Polars, software full-stack y gráficos WebGL2."
+      content="Portafolio Web 3D interactivo de Junior Orlando Cantor Arévalo. Ingeniería de Sistemas en Universidad del Valle, Ingeniería de Datos con Apache Airflow y Polars (Uplanner), desarrollo móvil y APIs REST (Global System Solutions) y arquitectura WebGL2."
     />
-    <title>Junior Cantor - Portafolio Web 3D</title>
+    <link rel="canonical" href="https://portafolio-junior-cantor.vercel.app/" />
+
+    <!-- Open Graph / LinkedIn / WhatsApp -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Junior Cantor · Portafolio Web 3D" />
+    <meta property="og:title" content="Junior Orlando Cantor Arévalo · Ingeniería de Sistemas, Datos y Web 3D" />
+    <meta
+      property="og:description"
+      content="Explora el portafolio interactivo en 3D de Junior Cantor: pipelines ETL con Apache Airflow y Polars en Uplanner, soluciones móviles REST en Global System Solutions y arquitectura WebGL2."
+    />
+    <meta property="og:url" content="https://portafolio-junior-cantor.vercel.app/" />
+    <meta property="og:image" content="https://portafolio-junior-cantor.vercel.app/og-cover.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Portafolio Web 3D de Junior Orlando Cantor Arévalo" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Junior Orlando Cantor Arévalo · Ingeniería de Sistemas, Datos y Web 3D" />
+    <meta
+      name="twitter:description"
+      content="Portafolio espacial WebGL2: Ingeniería de Datos (Airflow, Polars), Software Full-Stack (Python, React, TypeScript) y Cloud (AWS, GCP)."
+    />
+    <meta name="twitter:image" content="https://portafolio-junior-cantor.vercel.app/og-cover.png" />
+
+    <title>Junior Cantor - Portafolio Web 3D | Ingeniería de Sistemas y Datos</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Structured Data (Schema.org Person & ProfilePage) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        "mainEntity": {
+          "@type": "Person",
+          "name": "Junior Orlando Cantor Arévalo",
+          "alternateName": "Junior Cantor",
+          "jobTitle": "Ingeniero de Sistemas · Software, Datos e IA",
+          "email": "mailto:junior.cantor11@gmail.com",
+          "telephone": "+57-302-211-3532",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Cali",
+            "addressCountry": "CO"
+          },
+          "alumniOf": {
+            "@type": "CollegeOrUniversity",
+            "name": "Universidad del Valle"
+          },
+          "worksFor": {
+            "@type": "Organization",
+            "name": "Uplanner"
+          },
+          "url": "https://portafolio-junior-cantor.vercel.app/",
+          "sameAs": [
+            "https://www.linkedin.com/in/junior-cantor-arevalo/",
+            "https://github.com/cantor11"
+          ],
+          "knowsAbout": [
+            "Software Engineering",
+            "Data Engineering",
+            "Apache Airflow",
+            "Polars",
+            "Python",
+            "FastAPI",
+            "TypeScript",
+            "React",
+            "Three.js",
+            "WebGL2",
+            "AWS",
+            "Google Cloud Platform"
+          ]
+        }
+      }
+    </script>
   </head>
   <body class="antialiased">
     <div id="root"></div>
+    <noscript>
+      <main style="padding: 2rem; font-family: sans-serif; color: #f3efe6; background: #11100e;">
+        <h1>Junior Orlando Cantor Arévalo</h1>
+        <p>Ingeniería de Sistemas (Universidad del Valle, Cali). Desarrollo de software full-stack, ingeniería de datos con Apache Airflow y Polars, y gráficos interactivos Web 3D.</p>
+        <ul>
+          <li>Experiencia: Uplanner (Practicante de Ingeniería de Software, May 2026 a Dic 2026) y Global System Solutions (Desarrollador Móvil y APIs REST, Ene 2024 a Jun 2024).</li>
+          <li>LinkedIn: <a href="https://www.linkedin.com/in/junior-cantor-arevalo/">linkedin.com/in/junior-cantor-arevalo</a></li>
+          <li>GitHub: <a href="https://github.com/cantor11">github.com/cantor11</a></li>
+          <li>Correo: <a href="mailto:junior.cantor11@gmail.com">junior.cantor11@gmail.com</a></li>
+          <li>Hoja de vida PDF: <a href="/cv/Junior_Cantor_CV.pdf">Descargar CV</a></li>
+        </ul>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

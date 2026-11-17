@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /models-3d/raw/
+
+Sitemap: https://portafolio-junior-cantor.vercel.app/sitemap.xml
