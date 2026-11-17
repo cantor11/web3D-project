@@ -1,6 +1,7 @@
 import { SceneCanvas } from '@/components/canvas/SceneCanvas';
 import { BottomTelemetryHUD } from '@/components/hud/BottomTelemetryHUD';
 import { LoadingOverlay } from '@/components/hud/LoadingOverlay';
+import { ReactiveCursor } from '@/components/hud/ReactiveCursor';
 import { TopNavHUD } from '@/components/hud/TopNavHUD';
 import { DetailDialog25D } from '@/components/modals/DetailDialog25D';
 import { CameraRig } from '@/pages/portfolio/controls/CameraRig';
@@ -35,6 +36,7 @@ export function PortfolioPage() {
       </main>
 
       <BottomTelemetryHUD />
+      <ReactiveCursor />
       <DetailDialog25D />
       <LoadingOverlay />
     </div>

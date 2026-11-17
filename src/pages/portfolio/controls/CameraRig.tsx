@@ -136,6 +136,30 @@ export function CameraRig() {
     };
   }, [camera, targetSection, transitionRequestId, completeTransition]);
 
+  useEffect(() => {
+    const onResizeReframe = () => {
+      if (usePortfolioStore.getState().isTransitioning) return;
+      const controls = controlsRef.current;
+      if (!controls) return;
+      const activeStation = getStationById(usePortfolioStore.getState().targetSection);
+      const [camX, camY, camZ] = getResponsiveCameraCoords(
+        activeStation.cameraPosition,
+        activeStation.cameraTarget,
+      );
+      const [tgtX, tgtY, tgtZ] = activeStation.cameraTarget;
+      camera.position.set(camX, camY, camZ);
+      controls.target.set(tgtX, tgtY, tgtZ);
+      controls.update();
+    };
+
+    window.addEventListener('resize', onResizeReframe, { passive: true });
+    window.addEventListener('orientationchange', onResizeReframe, { passive: true });
+    return () => {
+      window.removeEventListener('resize', onResizeReframe);
+      window.removeEventListener('orientationchange', onResizeReframe);
+    };
+  }, [camera]);
+
   return (
     <OrbitControls
       ref={controlsRef}

@@ -68,7 +68,7 @@ async function prepareScreenTextures() {
 }
 
 async function generatePbrTextures() {
-  const size = 1024;
+  const size = 2048;
 
   // Deterministic brushed anodized metal albedo / roughness / normal / AO buffers
   const colorRaw = Buffer.alloc(size * size * 4);
@@ -130,7 +130,7 @@ async function generatePbrTextures() {
   fs.writeFileSync(path.join(PBR_DIR, 'metal-normal.png'), normalBuf);
   fs.writeFileSync(path.join(PBR_DIR, 'metal-ao.png'), aoBuf);
 
-  console.log('[pbr] Generated 1024x1024 PBR metal Normal/Roughness/AO maps');
+  console.log('[pbr] Generated 2048x2048 PBR metal Normal/Roughness/AO maps');
   return { albedoBuf, roughBuf, normalBuf, aoBuf };
 }
 
@@ -497,7 +497,7 @@ async function buildAndOptimize(name, builderFn, pbr, screens) {
     textureCompress({
       encoder: sharp,
       targetFormat: 'webp',
-      resize: [1024, 1024],
+      resize: [2048, 2048],
       quality: 82,
     }),
     draco({

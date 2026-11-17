@@ -74,6 +74,7 @@ export function SceneCanvas({ children }: SceneCanvasProps) {
         camera={{ fov: 45, near: 0.1, far: 140, position: [0, 3.4, 7.6] }}
         gl={{
           antialias: false,
+          preserveDrawingBuffer: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.05,

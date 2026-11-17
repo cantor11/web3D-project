@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, MousePointerClick } from 'lucide-react';
-import { getStationById, NODE_DETAILS } from '@/data/portfolioData';
+import { getStationById, NODE_DETAILS, type InteractiveNodeId } from '@/data/portfolioData';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
 export function BottomTelemetryHUD() {
@@ -14,6 +14,10 @@ export function BottomTelemetryHUD() {
 
   const station = getStationById(targetSection || currentSection);
   const hoveredDetail = hoveredNodeId ? NODE_DETAILS[hoveredNodeId] : null;
+
+  const stationNodes = (Object.keys(NODE_DETAILS) as InteractiveNodeId[])
+    .map((id) => NODE_DETAILS[id])
+    .filter((d) => d.stationId === station.id);
 
   return (
     <footer
@@ -48,21 +52,31 @@ export function BottomTelemetryHUD() {
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => selectNode(station.defaultNodeId)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-400/12 px-2.5 py-1.5 font-mono text-[11px] text-emerald-200 transition-colors hover:bg-emerald-400/20"
-          >
-            <MousePointerClick className="h-3.5 w-3.5 text-emerald-300" aria-hidden="true" />
-            <span>
-              {hoveredDetail
-                ? hoveredDetail.title[locale]
-                : locale === 'es'
-                  ? 'Inspeccionar estación'
-                  : 'Inspect station'}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {stationNodes.map((node) => {
+            const isNodeHovered = hoveredNodeId === node.id;
+            return (
+              <button
+                key={node.id}
+                type="button"
+                onClick={() => selectNode(node.id)}
+                className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-mono text-[11px] transition-colors ${
+                  isNodeHovered
+                    ? 'border-cyan-400/75 bg-cyan-400/20 text-cyan-100'
+                    : 'border-emerald-400/40 bg-emerald-400/12 text-emerald-200 hover:bg-emerald-400/20'
+                }`}
+              >
+                <MousePointerClick className="h-3.5 w-3.5 text-emerald-300" aria-hidden="true" />
+                <span>{node.organization[locale].split('·')[0].trim()}</span>
+              </button>
+            );
+          })}
+
+          {hoveredDetail && (
+            <span className="hidden font-mono text-[10px] text-cyan-300 lg:inline">
+              [{hoveredDetail.title[locale]}]
             </span>
-          </button>
+          )}
 
           <div className="hidden items-center gap-2 border-l border-slate-700/80 pl-2.5 font-mono text-[10px] text-slate-400 md:flex">
             <span>Orbit: 15°–85°</span>

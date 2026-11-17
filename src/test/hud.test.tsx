@@ -1,10 +1,13 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { BottomTelemetryHUD } from '@/components/hud/BottomTelemetryHUD';
+import { ReactiveCursor } from '@/components/hud/ReactiveCursor';
 import { TopNavHUD } from '@/components/hud/TopNavHUD';
 import { DetailDialog25D } from '@/components/modals/DetailDialog25D';
+import { NODE_DETAILS } from '@/data/portfolioData';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
-describe('HUD & DetailDialog25D interactions', () => {
+describe('HUD, ReactiveCursor & DetailDialog25D interactions', () => {
   beforeEach(() => {
     window.history.replaceState(null, '', '#sobre-mi');
     usePortfolioStore.setState({
@@ -17,7 +20,6 @@ describe('HUD & DetailDialog25D interactions', () => {
       locale: 'es',
     });
 
-    // JSDOM lacks native HTMLDialogElement.prototype.showModal / close
     HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
       this.setAttribute('open', '');
     });
@@ -44,7 +46,7 @@ describe('HUD & DetailDialog25D interactions', () => {
     expect(screen.getByRole('button', { name: /Experience/i })).toBeInTheDocument();
   });
 
-  it('opens Uplanner and GSS 2.5D modal cards with real CV achievements', () => {
+  it('opens Uplanner, GSS, and 10-item Certifications 2.5D modal cards with real CV achievements', () => {
     render(<DetailDialog25D />);
 
     act(() => {
@@ -58,5 +60,35 @@ describe('HUD & DetailDialog25D interactions', () => {
     });
     expect(screen.getByText(/Global System Solutions/i)).toBeInTheDocument();
     expect(screen.getByText(/registro, seguimiento y gestión de pedidos/i)).toBeInTheDocument();
+
+    expect(NODE_DETAILS['certifications-totem'].highlights.es).toHaveLength(10);
+    expect(NODE_DETAILS['certifications-totem'].highlights.en).toHaveLength(10);
+  });
+
+  it('transitions ReactiveCursor between default, hover, and active states (SUB-11)', () => {
+    render(
+      <>
+        <ReactiveCursor />
+        <BottomTelemetryHUD />
+      </>,
+    );
+
+    const cursor = screen.getByTestId('reactive-cursor');
+    expect(cursor).toHaveAttribute('data-cursor-state', 'default');
+
+    act(() => {
+      usePortfolioStore.getState().setHoveredNode('uplanner-rack');
+    });
+    expect(cursor).toHaveAttribute('data-cursor-state', 'hover');
+
+    act(() => {
+      fireEvent.pointerDown(window);
+    });
+    expect(cursor).toHaveAttribute('data-cursor-state', 'active');
+
+    act(() => {
+      fireEvent.pointerUp(window);
+    });
+    expect(cursor).toHaveAttribute('data-cursor-state', 'hover');
   });
 });

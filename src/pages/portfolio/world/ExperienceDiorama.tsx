@@ -16,6 +16,7 @@ export function ExperienceDiorama() {
 
   const pulseMatPrimary = useRef<THREE.ShaderMaterial>(null);
   const pulseMatSecondary = useRef<THREE.ShaderMaterial>(null);
+  const pulseMatTertiary = useRef<THREE.ShaderMaterial>(null);
 
   const primaryUniforms = useMemo(
     () => ({
@@ -35,6 +36,17 @@ export function ExperienceDiorama() {
       uPulseColor: { value: new THREE.Color('#22d3ee') },
       uSpeed: { value: 0.95 },
       uDensity: { value: 2.5 },
+    }),
+    [],
+  );
+
+  const tertiaryUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uBaseColor: { value: new THREE.Color('#164e63') },
+      uPulseColor: { value: new THREE.Color('#38bdf8') },
+      uSpeed: { value: 0.82 },
+      uDensity: { value: 2.8 },
     }),
     [],
   );
@@ -78,6 +90,7 @@ export function ExperienceDiorama() {
     const t = clock.elapsedTime;
     if (pulseMatPrimary.current) pulseMatPrimary.current.uniforms.uTime.value = t;
     if (pulseMatSecondary.current) pulseMatSecondary.current.uniforms.uTime.value = t;
+    if (pulseMatTertiary.current) pulseMatTertiary.current.uniforms.uTime.value = t;
   });
 
   return (
@@ -116,9 +129,10 @@ export function ExperienceDiorama() {
         </mesh>
         <mesh geometry={conduits.tube3}>
           <shaderMaterial
+            ref={pulseMatTertiary}
             vertexShader={etlPulseVert}
             fragmentShader={etlPulseFrag}
-            uniforms={secondaryUniforms}
+            uniforms={tertiaryUniforms}
             transparent
             depthWrite={false}
           />

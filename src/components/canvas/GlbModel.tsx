@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import { useGLTF } from '@react-three/drei';
 import { DRACO_DECODER_PATH } from '@/components/canvas/modelPreload';
+import { INTERACTIVE_LAYER } from '@/hooks/useInteractiveLayer';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
 useGLTF.setDecoderPath(DRACO_DECODER_PATH);
@@ -13,6 +14,7 @@ interface GlbModelProps {
   scale?: number | [number, number, number];
   castShadow?: boolean;
   receiveShadow?: boolean;
+  interactive?: boolean;
 }
 
 export function GlbModel({
@@ -22,6 +24,7 @@ export function GlbModel({
   scale = 1,
   castShadow = true,
   receiveShadow = true,
+  interactive = true,
 }: GlbModelProps) {
   const gltf = useGLTF(url, DRACO_DECODER_PATH);
   const setDracoInitMs = usePortfolioStore((s) => s.setDracoInitMs);
@@ -30,6 +33,9 @@ export function GlbModel({
     const decodeStart = performance.now();
     const clone = gltf.scene.clone(true);
     clone.traverse((child) => {
+      if (interactive) {
+        child.layers.enable(INTERACTIVE_LAYER);
+      }
       if (child instanceof THREE.Mesh) {
         child.castShadow = castShadow;
         child.receiveShadow = receiveShadow;
@@ -37,7 +43,7 @@ export function GlbModel({
     });
     const decodeMs = Math.max(1, Math.round(performance.now() - decodeStart));
     return { clone, decodeMs };
-  }, [gltf.scene, castShadow, receiveShadow]);
+  }, [gltf.scene, castShadow, receiveShadow, interactive]);
 
   useEffect(() => {
     if (usePortfolioStore.getState().dracoInitMs === null) {
