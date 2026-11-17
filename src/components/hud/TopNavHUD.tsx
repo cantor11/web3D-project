@@ -1,33 +1,82 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Download, Globe, Moon, Sun } from 'lucide-react';
+import { ChevronDown, Download, Globe, Moon, SlidersHorizontal, Sun } from 'lucide-react';
 import { PROFILE, STATIONS, getStationById } from '@/data/portfolioData';
-import { usePortfolioStore } from '@/stores/usePortfolioStore';
+import { type QualityPreset, usePortfolioStore } from '@/stores/usePortfolioStore';
+
+const QUALITY_OPTIONS: {
+  id: QualityPreset;
+  label: { es: string; en: string };
+  short: { es: string; en: string };
+  spec: { es: string; en: string };
+}[] = [
+  {
+    id: 'performance',
+    label: { es: 'Rendimiento', en: 'Performance' },
+    short: { es: 'Rend.', en: 'Perf.' },
+    spec: {
+      es: 'DPR 1.0x · Sin sombras ni postprocesado · GPU integrada',
+      en: 'DPR 1.0x · No shadows or postprocessing · Integrated GPU',
+    },
+  },
+  {
+    id: 'balanced',
+    label: { es: 'Equilibrado', en: 'Balanced' },
+    short: { es: 'Equil.', en: 'Bal.' },
+    spec: {
+      es: 'DPR 1.5x · Sombras 1024px · SMAA + Outline',
+      en: 'DPR 1.5x · 1024px shadows · SMAA + Outline',
+    },
+  },
+  {
+    id: 'ultra',
+    label: { es: 'Máximo', en: 'Maximum' },
+    short: { es: 'Máx.', en: 'Max.' },
+    spec: {
+      es: 'DPR 2.0x · Sombras 2048px · Bloom + PBR completo',
+      en: 'DPR 2.0x · 2048px shadows · Bloom + full PBR',
+    },
+  },
+];
 
 export function TopNavHUD() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [graphicsOpen, setGraphicsOpen] = useState(false);
   const mobileToggleRef = useRef<HTMLButtonElement>(null);
+  const graphicsToggleRef = useRef<HTMLButtonElement>(null);
 
   const targetSection = usePortfolioStore((s) => s.targetSection);
   const isTransitioning = usePortfolioStore((s) => s.isTransitioning);
   const locale = usePortfolioStore((s) => s.locale);
   const theme = usePortfolioStore((s) => s.theme);
+  const qualityPreset = usePortfolioStore((s) => s.qualityPreset);
+  const autoQuality = usePortfolioStore((s) => s.autoQuality);
+  const renderStats = usePortfolioStore((s) => s.renderStats);
   const navigateTo = usePortfolioStore((s) => s.navigateTo);
   const toggleLocale = usePortfolioStore((s) => s.toggleLocale);
   const toggleTheme = usePortfolioStore((s) => s.toggleTheme);
+  const setQualityPreset = usePortfolioStore((s) => s.setQualityPreset);
+  const setAutoQuality = usePortfolioStore((s) => s.setAutoQuality);
 
   const activeStation = getStationById(targetSection);
+  const currentQualityMeta =
+    QUALITY_OPTIONS.find((q) => q.id === qualityPreset) ?? QUALITY_OPTIONS[1];
 
   useEffect(() => {
-    if (!mobileMenuOpen) return;
+    if (!mobileMenuOpen && !graphicsOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setMobileMenuOpen(false);
-        mobileToggleRef.current?.focus();
+        if (graphicsOpen) {
+          setGraphicsOpen(false);
+          graphicsToggleRef.current?.focus();
+        } else if (mobileMenuOpen) {
+          setMobileMenuOpen(false);
+          mobileToggleRef.current?.focus();
+        }
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [mobileMenuOpen]);
+  }, [mobileMenuOpen, graphicsOpen]);
 
   return (
     <header
@@ -52,7 +101,10 @@ export function TopNavHUD() {
             <button
               ref={mobileToggleRef}
               type="button"
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              onClick={() => {
+                setMobileMenuOpen((prev) => !prev);
+                setGraphicsOpen(false);
+              }}
               aria-expanded={mobileMenuOpen}
               aria-controls="portfolio-station-nav"
               aria-label={
@@ -128,6 +180,38 @@ export function TopNavHUD() {
           {/* Global Utilities */}
           <div className="order-2 flex shrink-0 items-center gap-1.5 sm:gap-2 lg:order-3">
             <button
+              ref={graphicsToggleRef}
+              type="button"
+              onClick={() => {
+                setGraphicsOpen((prev) => !prev);
+                setMobileMenuOpen(false);
+              }}
+              aria-expanded={graphicsOpen}
+              aria-controls="graphics-quality-panel"
+              aria-label={
+                locale === 'es'
+                  ? `Configurar calidad gráfica (actual: ${currentQualityMeta.label.es})`
+                  : `Configure graphics quality (current: ${currentQualityMeta.label.en})`
+              }
+              className={`inline-flex items-center justify-center gap-1.5 rounded-[6px] px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                graphicsOpen
+                  ? 'border border-[var(--accent-primary)] bg-[var(--accent-soft)] text-[var(--text-primary)]'
+                  : 'studio-control'
+              }`}
+            >
+              <SlidersHorizontal
+                className="h-3.5 w-3.5 text-[var(--accent-primary)]"
+                aria-hidden="true"
+              />
+              <span className="hidden xl:inline">
+                { currentQualityMeta.label[locale] }
+              </span>
+              <span className="hidden font-mono text-[11px] sm:inline xl:hidden">
+                { currentQualityMeta.short[locale] }
+              </span>
+            </button>
+
+            <button
               type="button"
               onClick={toggleTheme}
               aria-label={
@@ -178,6 +262,101 @@ export function TopNavHUD() {
             </a>
           </div>
         </div>
+
+        {/* Expandable Graphics Quality & Performance Diagnostic Tray */}
+        {graphicsOpen && (
+          <section
+            id="graphics-quality-panel"
+            aria-label={
+              locale === 'es'
+                ? 'Ajustes de rendimiento y calidad gráfica 3D'
+                : '3D performance and graphics quality settings'
+            }
+            className="studio-content-swap border-t border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] px-3.5 py-3 sm:px-5"
+          >
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-semibold text-[var(--text-primary)]">
+                    {locale === 'es'
+                      ? 'Perfil gráfico WebGL2'
+                      : 'WebGL2 graphics profile'}
+                  </p>
+                  <label className="inline-flex items-center gap-1.5 text-xs text-[var(--text-secondary)]">
+                    <input
+                      type="checkbox"
+                      checked={autoQuality}
+                      onChange={(e) => setAutoQuality(e.target.checked)}
+                      className="h-3.5 w-3.5 accent-[var(--accent-primary)]"
+                    />
+                    <span>
+                      {locale === 'es'
+                        ? 'Ajuste automático si bajan los FPS'
+                        : 'Auto-step down on low FPS'}
+                    </span>
+                  </label>
+                </div>
+                <p className="text-xs text-[var(--text-secondary)]">
+                  {currentQualityMeta.spec[locale]}
+                </p>
+              </div>
+
+              <div
+                role="group"
+                aria-label={locale === 'es' ? 'Modos de calidad' : 'Quality modes'}
+                className="grid grid-cols-3 gap-1.5 sm:flex sm:items-center"
+              >
+                {QUALITY_OPTIONS.map((opt) => {
+                  const active = qualityPreset === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setQualityPreset(opt.id)}
+                      className={`rounded-[6px] px-3 py-1.5 text-xs font-medium transition ${
+                        active
+                          ? 'font-semibold studio-cta'
+                          : 'studio-control text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      {opt.label[locale]}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <dl className="flex flex-wrap items-center gap-3 border-t border-[var(--border-subtle)] pt-2 font-mono text-[11px] tabular-nums lg:border-t-0 lg:pt-0">
+                <div className="flex items-baseline gap-1">
+                  <dt className="text-[var(--text-secondary)]">FPS</dt>
+                  <dd className="font-semibold text-[var(--status-ok)]">{renderStats.fps}</dd>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <dt className="text-[var(--text-secondary)]">Draw calls</dt>
+                  <dd className="font-semibold text-[var(--text-primary)]">
+                    {renderStats.calls}
+                  </dd>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <dt className="text-[var(--text-secondary)]">
+                    {locale === 'es' ? 'Triángulos' : 'Triangles'}
+                  </dt>
+                  <dd className="font-semibold text-[var(--text-primary)]">
+                    {renderStats.triangles}
+                  </dd>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <dt className="text-[var(--text-secondary)]">
+                    {locale === 'es' ? 'Texturas' : 'Textures'}
+                  </dt>
+                  <dd className="font-semibold text-[var(--text-primary)]">
+                    {renderStats.textures}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+        )}
 
         {isTransitioning && (
           <div

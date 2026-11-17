@@ -4,12 +4,16 @@ import { OrbitControls } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
 import gsap from 'gsap';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { getStationById, STATIONS, type StationId } from '@/data/portfolioData';
+import {
+  getStationById,
+  NODE_DETAILS,
+  STATIONS,
+  type StationId,
+} from '@/data/portfolioData';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
 const MIN_POLAR_RAD = THREE.MathUtils.degToRad(15);
 const MAX_POLAR_RAD = THREE.MathUtils.degToRad(85);
-const TRANSITION_DURATION_SEC = 1.8;
 
 function getResponsiveCameraCoords(
   camPos: [number, number, number],
@@ -33,10 +37,12 @@ export function CameraRig() {
   const controlsRef = useRef<OrbitControlsImpl>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const isFirstMount = useRef(true);
+  const prevStationRef = useRef<StationId>('sobre-mi');
 
   const { camera } = useThree();
   const targetSection = usePortfolioStore((s) => s.targetSection);
   const transitionRequestId = usePortfolioStore((s) => s.transitionRequestId);
+  const focusedNodeId = usePortfolioStore((s) => s.focusedNodeId);
   const completeTransition = usePortfolioStore((s) => s.completeTransition);
   const navigateTo = usePortfolioStore((s) => s.navigateTo);
   const stepStation = usePortfolioStore((s) => s.stepStation);
@@ -78,6 +84,7 @@ export function CameraRig() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [navigateTo, stepStation]);
 
+  // Station-to-station cinematic flight with adaptive duration and vertical arc
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
@@ -91,6 +98,7 @@ export function CameraRig() {
 
     if (isFirstMount.current) {
       isFirstMount.current = false;
+      prevStationRef.current = targetSection;
       camera.position.set(camX, camY, camZ);
       controls.target.set(tgtX, tgtY, tgtZ);
       controls.update();
@@ -106,14 +114,23 @@ export function CameraRig() {
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const duration = prefersReducedMotion ? 0.01 : TRANSITION_DURATION_SEC;
+
+    const dist = Math.hypot(
+      camX - camera.position.x,
+      camY - camera.position.y,
+      camZ - camera.position.z,
+    );
+    const duration = prefersReducedMotion
+      ? 0.01
+      : THREE.MathUtils.clamp(0.82 + dist * 0.016, 0.88, 1.28);
+    const arcLiftY = Math.max(camera.position.y, camY) + Math.min(dist * 0.045, 0.95);
 
     controls.enabled = false;
     const activeRequestId = transitionRequestId;
     const destinationId: StationId = targetSection;
+    prevStationRef.current = targetSection;
 
     const tl = gsap.timeline({
-      defaults: { duration, ease: 'power3.inOut' },
       onUpdate: () => {
         controls.update();
       },
@@ -127,8 +144,59 @@ export function CameraRig() {
       },
     });
 
-    tl.to(camera.position, { x: camX, y: camY, z: camZ }, 0);
-    tl.to(controls.target, { x: tgtX, y: tgtY, z: tgtZ }, 0);
+    tl.to(
+      camera.position,
+      {
+        x: camX,
+        z: camZ,
+        duration,
+        ease: 'power3.inOut',
+      },
+      0,
+    );
+
+    if (!prefersReducedMotion && dist > 4) {
+      tl.to(
+        camera.position,
+        {
+          y: arcLiftY,
+          duration: duration * 0.44,
+          ease: 'power2.out',
+        },
+        0,
+      ).to(
+        camera.position,
+        {
+          y: camY,
+          duration: duration * 0.56,
+          ease: 'power2.inOut',
+        },
+        duration * 0.44,
+      );
+    } else {
+      tl.to(
+        camera.position,
+        {
+          y: camY,
+          duration,
+          ease: 'power3.inOut',
+        },
+        0,
+      );
+    }
+
+    tl.to(
+      controls.target,
+      {
+        x: tgtX,
+        y: tgtY,
+        z: tgtZ,
+        duration,
+        ease: 'power3.inOut',
+      },
+      0,
+    );
+
     timelineRef.current = tl;
 
     return () => {
@@ -136,17 +204,86 @@ export function CameraRig() {
     };
   }, [camera, targetSection, transitionRequestId, completeTransition]);
 
+  // Smooth sub-node focus glide when selecting/switching between 3D models or closing modal
+  useEffect(() => {
+    if (isFirstMount.current) return;
+    const controls = controlsRef.current;
+    if (!controls) return;
+
+    const station = getStationById(usePortfolioStore.getState().targetSection);
+    const focusedDetail = focusedNodeId ? NODE_DETAILS[focusedNodeId] : null;
+
+    // Only focus if the focused node belongs to the active station (or relax to station overview)
+    const rawCamPos =
+      focusedDetail && focusedDetail.stationId === station.id
+        ? focusedDetail.focusCameraPosition
+        : station.cameraPosition;
+    const rawTarget =
+      focusedDetail && focusedDetail.stationId === station.id
+        ? focusedDetail.focusCameraTarget
+        : station.cameraTarget;
+
+    const [camX, camY, camZ] = getResponsiveCameraCoords(rawCamPos, rawTarget);
+    const [tgtX, tgtY, tgtZ] = rawTarget;
+
+    const dist = Math.hypot(
+      camX - camera.position.x,
+      camY - camera.position.y,
+      camZ - camera.position.z,
+    );
+    if (dist < 0.04) return;
+
+    if (timelineRef.current) {
+      timelineRef.current.kill();
+      timelineRef.current = null;
+    }
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const duration = prefersReducedMotion ? 0.01 : 0.76;
+
+    const tl = gsap.timeline({
+      defaults: { duration, ease: 'power3.out' },
+      onUpdate: () => {
+        controls.update();
+      },
+      onComplete: () => {
+        controls.enabled = true;
+        controls.update();
+      },
+    });
+
+    tl.to(camera.position, { x: camX, y: camY, z: camZ }, 0);
+    tl.to(controls.target, { x: tgtX, y: tgtY, z: tgtZ }, 0);
+    timelineRef.current = tl;
+
+    return () => {
+      tl.kill();
+    };
+  }, [camera, focusedNodeId]);
+
   useEffect(() => {
     const onResizeReframe = () => {
       if (usePortfolioStore.getState().isTransitioning) return;
       const controls = controlsRef.current;
       if (!controls) return;
-      const activeStation = getStationById(usePortfolioStore.getState().targetSection);
-      const [camX, camY, camZ] = getResponsiveCameraCoords(
-        activeStation.cameraPosition,
-        activeStation.cameraTarget,
-      );
-      const [tgtX, tgtY, tgtZ] = activeStation.cameraTarget;
+      const state = usePortfolioStore.getState();
+      const activeStation = getStationById(state.targetSection);
+      const focusedDetail = state.focusedNodeId
+        ? NODE_DETAILS[state.focusedNodeId]
+        : null;
+      const baseCam =
+        focusedDetail && focusedDetail.stationId === activeStation.id
+          ? focusedDetail.focusCameraPosition
+          : activeStation.cameraPosition;
+      const baseTarget =
+        focusedDetail && focusedDetail.stationId === activeStation.id
+          ? focusedDetail.focusCameraTarget
+          : activeStation.cameraTarget;
+
+      const [camX, camY, camZ] = getResponsiveCameraCoords(baseCam, baseTarget);
+      const [tgtX, tgtY, tgtZ] = baseTarget;
       camera.position.set(camX, camY, camZ);
       controls.target.set(tgtX, tgtY, tgtZ);
       controls.update();
@@ -165,9 +302,9 @@ export function CameraRig() {
       ref={controlsRef}
       makeDefault
       enableDamping
-      dampingFactor={0.05}
+      dampingFactor={0.055}
       enablePan={false}
-      minDistance={3.2}
+      minDistance={3.0}
       maxDistance={22}
       minPolarAngle={MIN_POLAR_RAD}
       maxPolarAngle={MAX_POLAR_RAD}

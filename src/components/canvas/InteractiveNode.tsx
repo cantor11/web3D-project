@@ -14,7 +14,8 @@ interface InteractiveNodeProps {
 }
 
 const SCALE_DEFAULT = 1;
-const SCALE_HOVER = 1.05;
+const SCALE_HOVER = 1.045;
+const LIFT_HOVER = 0.042;
 const DRAG_THRESHOLD_PX = 6;
 
 export function InteractiveNode({
@@ -25,6 +26,7 @@ export function InteractiveNode({
 }: InteractiveNodeProps) {
   const groupRef = useRef<THREE.Group>(null);
   const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  const baseY = position[1];
 
   const isHovered = usePortfolioStore((s) => s.hoveredNodeId === nodeId);
   const isSelected = usePortfolioStore((s) => s.selectedNodeId === nodeId);
@@ -46,9 +48,13 @@ export function InteractiveNode({
   useFrame((_, delta) => {
     const group = groupRef.current;
     if (!group) return;
-    const target = isHovered || isSelected ? SCALE_HOVER : SCALE_DEFAULT;
-    const nextScale = THREE.MathUtils.damp(group.scale.x, target, 12, delta);
+    const active = isHovered || isSelected;
+    const targetScale = active ? SCALE_HOVER : SCALE_DEFAULT;
+    const targetY = active ? baseY + LIFT_HOVER : baseY;
+    const nextScale = THREE.MathUtils.damp(group.scale.x, targetScale, 11, delta);
+    const nextY = THREE.MathUtils.damp(group.position.y, targetY, 11, delta);
     group.scale.setScalar(nextScale);
+    group.position.y = nextY;
   });
 
   const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {

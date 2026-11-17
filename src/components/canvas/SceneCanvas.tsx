@@ -1,14 +1,27 @@
-import { Component, type ErrorInfo, type ReactNode, Suspense, useEffect, useState } from 'react';
+import {
+  Component,
+  type ErrorInfo,
+  type ReactNode,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import * as THREE from 'three';
-import { Canvas, type RootState } from '@react-three/fiber';
-import { Preload } from '@react-three/drei';
+import { Canvas, type RootState, useFrame } from '@react-three/fiber';
+import { PerformanceMonitor, Preload } from '@react-three/drei';
 import { Selection } from '@react-three/postprocessing';
 import { INTERACTIVE_LAYER } from '@/hooks/useInteractiveLayer';
 import { useWindowResize } from '@/hooks/useWindowResize';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
 
-function SceneReadySignal() {
+function SceneReadyAndTelemetry() {
   const setAssetReady = usePortfolioStore((s) => s.setAssetReady);
+  const setRenderStats = usePortfolioStore((s) => s.setRenderStats);
+  const frameCountRef = useRef(0);
+  const elapsedRef = useRef(0);
+  const initialSampledRef = useRef(false);
+  const sceneRenderMetricsRef = useRef({ calls: 0, triangles: 0 });
 
   useEffect(() => {
     const id = window.requestAnimationFrame(() => {
@@ -18,6 +31,48 @@ function SceneReadySignal() {
     });
     return () => window.cancelAnimationFrame(id);
   }, [setAssetReady]);
+
+  useFrame((state, delta) => {
+    state.scene.onAfterRender = (renderer) => {
+      sceneRenderMetricsRef.current.calls = renderer.info.render.calls;
+      sceneRenderMetricsRef.current.triangles = renderer.info.render.triangles;
+    };
+
+    frameCountRef.current += 1;
+    elapsedRef.current += delta;
+
+    const calls =
+      sceneRenderMetricsRef.current.calls || state.gl.info.render.calls;
+    const triangles =
+      sceneRenderMetricsRef.current.triangles || state.gl.info.render.triangles;
+
+    if (!initialSampledRef.current && frameCountRef.current >= 4 && calls > 1) {
+      initialSampledRef.current = true;
+      setRenderStats({
+        fps: 60,
+        calls,
+        triangles,
+        geometries: state.gl.info.memory.geometries,
+        textures: state.gl.info.memory.textures,
+      });
+    }
+
+    if (elapsedRef.current >= 1.0) {
+      const fps = Math.min(
+        144,
+        Math.max(1, Math.round(frameCountRef.current / elapsedRef.current)),
+      );
+      setRenderStats({
+        fps,
+        calls,
+        triangles,
+        geometries: state.gl.info.memory.geometries,
+        textures: state.gl.info.memory.textures,
+      });
+      frameCountRef.current = 0;
+      elapsedRef.current = 0;
+    }
+  });
 
   return null;
 }
@@ -63,17 +118,34 @@ class CanvasErrorBoundary extends Component<{ children: ReactNode }, BoundarySta
 
 export function SceneCanvas({ children }: SceneCanvasProps) {
   const [rootState, setRootState] = useState<RootState | null>(null);
+  const qualityPreset = usePortfolioStore((s) => s.qualityPreset);
+  const stepDownQuality = usePortfolioStore((s) => s.stepDownQuality);
 
   useWindowResize(rootState, 12);
+
+  const dprRange: [number, number] =
+    qualityPreset === 'performance'
+      ? [1, 1]
+      : qualityPreset === 'balanced'
+        ? [1, 1.5]
+        : [1, 2];
+
+  const enableShadows = qualityPreset !== 'performance';
+
+  useEffect(() => {
+    if (!rootState) return;
+    rootState.gl.shadowMap.enabled = enableShadows;
+    rootState.gl.shadowMap.needsUpdate = true;
+  }, [rootState, enableShadows]);
 
   return (
     <CanvasErrorBoundary>
       <Canvas
-        shadows
-        dpr={[1, 2]}
+        shadows={enableShadows}
+        dpr={dprRange}
         camera={{ fov: 45, near: 0.1, far: 140, position: [0, 3.3, 7.2] }}
         gl={{
-          antialias: false,
+          antialias: qualityPreset === 'performance',
           preserveDrawingBuffer: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
@@ -83,17 +155,23 @@ export function SceneCanvas({ children }: SceneCanvasProps) {
         onCreated={(state) => {
           state.gl.outputColorSpace = THREE.SRGBColorSpace;
           state.gl.toneMapping = THREE.ACESFilmicToneMapping;
-          state.gl.shadowMap.enabled = true;
+          state.gl.shadowMap.enabled = enableShadows;
           state.gl.shadowMap.type = THREE.PCFSoftShadowMap;
           // Filter Raycaster strictly to INTERACTIVE_LAYER (layer 1)
           state.raycaster.layers.set(INTERACTIVE_LAYER);
           setRootState(state);
         }}
       >
+        <PerformanceMonitor
+          flipflops={2}
+          onDecline={() => {
+            stepDownQuality();
+          }}
+        />
         <Suspense fallback={null}>
           <Selection>{children}</Selection>
           <Preload all />
-          <SceneReadySignal />
+          <SceneReadyAndTelemetry />
         </Suspense>
       </Canvas>
     </CanvasErrorBoundary>

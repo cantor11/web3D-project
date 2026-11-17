@@ -18,12 +18,16 @@ describe('Portfolio spatial configuration & state machine', () => {
       transitionRequestId: 0,
       hoveredNodeId: null,
       selectedNodeId: null,
+      focusedNodeId: null,
+      openComposerOnModal: false,
       locale: 'es',
       theme: 'dark',
+      qualityPreset: 'balanced',
+      autoQuality: true,
     });
   });
 
-  it('keeps every station camera preset within polar [15deg, 85deg] and orbital distance [3.2, 18]', () => {
+  it('keeps every station and node focus camera preset within polar [15deg, 85deg] and orbital distance [3.0, 18]', () => {
     for (const station of STATIONS) {
       const cam = new THREE.Vector3(...station.cameraPosition);
       const tgt = new THREE.Vector3(...station.cameraTarget);
@@ -36,6 +40,19 @@ describe('Portfolio spatial configuration & state machine', () => {
       expect(polarDeg).toBeGreaterThanOrEqual(15);
       expect(polarDeg).toBeLessThanOrEqual(85);
       expect(cam.y).toBeGreaterThan(0);
+    }
+
+    for (const detail of Object.values(NODE_DETAILS)) {
+      const cam = new THREE.Vector3(...detail.focusCameraPosition);
+      const tgt = new THREE.Vector3(...detail.focusCameraTarget);
+      const offset = cam.clone().sub(tgt);
+      const dist = offset.length();
+      const polarDeg = THREE.MathUtils.radToDeg(Math.acos(offset.y / dist));
+
+      expect(dist).toBeGreaterThanOrEqual(3.0);
+      expect(dist).toBeLessThanOrEqual(15);
+      expect(polarDeg).toBeGreaterThanOrEqual(15);
+      expect(polarDeg).toBeLessThanOrEqual(85);
     }
   });
 
@@ -66,17 +83,34 @@ describe('Portfolio spatial configuration & state machine', () => {
     expect(usePortfolioStore.getState().currentSection).toBe('proyectos');
   });
 
-  it('maps hash routes, bilingual CV details, and contains zero em dashes (R-02)', () => {
+  it('maps hash routes, LinkedIn URL, quality presets, and contains zero em dashes (R-02)', () => {
     expect(getStationFromHash('#experiencia')).toBe('experiencia');
     expect(getStationFromHash('#invalid')).toBeNull();
 
     expect(PROFILE.email).toBe('junior.cantor11@gmail.com');
+    expect(PROFILE.linkedinUrl).toBe('https://www.linkedin.com/in/junior-cantor-arevalo/');
+    expect(
+      NODE_DETAILS['contact-terminal'].links?.some(
+        (l) => l.href === 'https://www.linkedin.com/in/junior-cantor-arevalo/',
+      ),
+    ).toBe(true);
     expect(NODE_DETAILS['uplanner-rack'].highlights.es.join(' ')).toContain('Polars');
     expect(NODE_DETAILS['uplanner-rack'].highlights.es.join(' ')).toContain('Airflow');
     expect(NODE_DETAILS['gss-mobile'].highlights.es.join(' ')).toContain('REST');
 
     const serializedData = JSON.stringify({ PROFILE, STATIONS, NODE_DETAILS });
     expect(serializedData).not.toContain('\u2014');
+
+    // Quality preset step-down & manual override
+    usePortfolioStore.getState().setQualityPreset('ultra');
+    expect(usePortfolioStore.getState().qualityPreset).toBe('ultra');
+    expect(usePortfolioStore.getState().autoQuality).toBe(false);
+
+    usePortfolioStore.getState().setAutoQuality(true);
+    usePortfolioStore.getState().stepDownQuality();
+    expect(usePortfolioStore.getState().qualityPreset).toBe('balanced');
+    usePortfolioStore.getState().stepDownQuality();
+    expect(usePortfolioStore.getState().qualityPreset).toBe('performance');
 
     usePortfolioStore.getState().toggleLocale();
     expect(usePortfolioStore.getState().locale).toBe('en');

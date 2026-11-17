@@ -35,6 +35,14 @@ export interface StationConfig {
   defaultNodeId: InteractiveNodeId;
 }
 
+export interface NodeLink {
+  label: LocalizedText;
+  href: string;
+  external?: boolean;
+  primary?: boolean;
+  action?: 'compose-email';
+}
+
 export interface NodeDetail {
   id: InteractiveNodeId;
   stationId: StationId;
@@ -48,7 +56,9 @@ export interface NodeDetail {
   stack: string[];
   sceneContext: LocalizedText;
   facts: { label: LocalizedText; value: LocalizedText }[];
-  links?: { label: LocalizedText; href: string; external?: boolean; primary?: boolean }[];
+  focusCameraPosition: [number, number, number];
+  focusCameraTarget: [number, number, number];
+  links?: NodeLink[];
 }
 
 export const STATIONS: StationConfig[] = [
@@ -119,8 +129,8 @@ export const STATIONS: StationConfig[] = [
     label: { es: 'Contacto', en: 'Contact' },
     shortLabel: { es: 'Contacto', en: 'Contact' },
     subtitle: {
-      es: 'Canales directos, referencias profesionales y descarga de hoja de vida.',
-      en: 'Direct contact channels, industry references, and PDF resume.',
+      es: 'Canales directos, LinkedIn, referencias profesionales y hoja de vida.',
+      en: 'Direct contact form, LinkedIn, industry references, and PDF resume.',
     },
     position: [-10.5, 0, -14.5],
     cameraPosition: [-10.5, 3.3, -7.1],
@@ -145,7 +155,7 @@ export const PROFILE = {
     en: 'Spanish native, English B2',
   },
   githubUrl: 'https://github.com/cantor11',
-  linkedinUrl: 'https://www.linkedin.com/in/junior-cantor',
+  linkedinUrl: 'https://www.linkedin.com/in/junior-cantor-arevalo/',
   cvPath: '/cv/Junior_Cantor_CV.pdf',
   summary: {
     es: 'Estudiante de noveno semestre de Ingeniería de Sistemas en la Universidad del Valle. Trabajo en desarrollo de software full-stack, ingeniería de datos con Apache Airflow y Polars, y aplicaciones de inteligencia artificial bajo metodologías ágiles.',
@@ -202,12 +212,19 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Datos, Full-Stack y Web 3D', en: 'Data, Full-Stack & Web 3D' },
       },
     ],
+    focusCameraPosition: [0.3, 2.55, 5.4],
+    focusCameraTarget: [0, 1.25, -0.1],
     links: [
       {
         label: { es: 'Descargar hoja de vida (PDF)', en: 'Download resume (PDF)' },
         href: '/cv/Junior_Cantor_CV.pdf',
         external: true,
         primary: true,
+      },
+      {
+        label: { es: 'LinkedIn', en: 'LinkedIn' },
+        href: 'https://www.linkedin.com/in/junior-cantor-arevalo/',
+        external: true,
       },
       {
         label: { es: 'GitHub', en: 'GitHub' },
@@ -266,6 +283,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Tableros en Streamlit', en: 'Streamlit dashboards' },
       },
     ],
+    focusCameraPosition: [12.3, 2.85, 3.6],
+    focusCameraTarget: [12.55, 1.35, -2.1],
   },
   'gss-mobile': {
     id: 'gss-mobile',
@@ -315,6 +334,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Pruebas QA y despliegue', en: 'QA testing & release' },
       },
     ],
+    focusCameraPosition: [16.3, 2.75, 3.8],
+    focusCameraTarget: [16.15, 1.35, -1.65],
   },
   'skills-core': {
     id: 'skills-core',
@@ -367,6 +388,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'GitHub Actions y Jenkins', en: 'GitHub Actions & Jenkins' },
       },
     ],
+    focusCameraPosition: [-14.4, 3.1, 4.4],
+    focusCameraTarget: [-14, 1.1, -2],
   },
   'certifications-totem': {
     id: 'certifications-totem',
@@ -431,6 +454,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Más de 20 cursos aprobados', en: '20+ completed courses' },
       },
     ],
+    focusCameraPosition: [-13.4, 2.95, 3.8],
+    focusCameraTarget: [-14, 1.55, -2.05],
   },
   'projects-web3d': {
     id: 'projects-web3d',
@@ -452,16 +477,16 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
     },
     highlights: {
       es: [
-        'Cámara orbital restringida entre 15 y 85 grados con damping 0.05 y vuelos GSAP de 1.8 segundos.',
+        'Cámara orbital restringida entre 15 y 85 grados con damping 0.05 y vuelos cinemáticos adaptativos.',
         'Raycasting aislado en la capa interactiva (Layer 1) para minimizar intersecciones por cuadro.',
-        'Shaders GLSL propios (.vert y .frag) para retícula arquitectónica del suelo y pulsos de tuberías ETL.',
-        'Compresión automatizada con @gltf-transform (malla DRACO y texturas WebP) bajo tope de 18k triángulos por modelo.',
+        'Shaders GLSL propios (.vert y .frag), cubemap de estudio de 6 caras y texturas PBR de piedra y metal.',
+        'Compresión automatizada con @gltf-transform (malla DRACO y texturas WebP) más perfiles de calidad gráfica.',
       ],
       en: [
-        'Orbital controls constrained between 15 and 85 degrees (damping 0.05) paired with 1.8s GSAP transitions.',
+        'Orbital controls constrained between 15 and 85 degrees (damping 0.05) paired with adaptive GSAP camera flights.',
         'Layer-isolated raycasting (Layer 1) keeping frame hover checks below 2ms.',
-        'Custom GLSL shaders (.vert and .frag) driving the architectural floor grid and ETL flow conduits.',
-        'Automated @gltf-transform optimization applying DRACO mesh compression and WebP textures under 18k triangles.',
+        'Custom GLSL shaders (.vert and .frag), 6-face studio cubemap, and stone/metal PBR textures.',
+        'Automated @gltf-transform optimization applying DRACO mesh compression, WebP textures, and GPU quality tiers.',
       ],
     },
     stack: ['React 18', 'TypeScript', 'R3F', 'Three.js', 'GSAP', 'GLSL', 'gltf-transform', 'DRACO'],
@@ -476,13 +501,15 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
       },
       {
         label: { es: 'Compresión GLB', en: 'GLB compression' },
-        value: { es: 'DRACO + WebP (>60% ahorro)', en: 'DRACO + WebP (>60% smaller)' },
+        value: { es: 'DRACO + WebP (>85% ahorro)', en: 'DRACO + WebP (>85% smaller)' },
       },
       {
         label: { es: 'Validación Khronos', en: 'Asset validation' },
         value: { es: '0 errores gltf-transform', en: '0 gltf-transform errors' },
       },
     ],
+    focusCameraPosition: [9.3, 2.7, -9.2],
+    focusCameraTarget: [9.62, 1.2, -14.46],
     links: [
       {
         label: { es: 'Ver repositorio en GitHub', en: 'View repository on GitHub' },
@@ -541,15 +568,17 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Docker y CI/CD', en: 'Docker & CI/CD' },
       },
     ],
+    focusCameraPosition: [11.7, 2.75, -9.2],
+    focusCameraTarget: [11.38, 1.2, -14.52],
   },
   'contact-terminal': {
     id: 'contact-terminal',
     stationId: 'contacto',
     category: { es: 'Contacto y referencias', en: 'Contact & references' },
-    actionLabel: { es: 'Canales y referencias', en: 'Contact & references' },
+    actionLabel: { es: 'Canales y correo', en: 'Contact & email' },
     title: {
-      es: 'Contacto Directo y Referencias Profesionales',
-      en: 'Direct Contact & Professional References',
+      es: 'Contacto Directo, LinkedIn y Referencias',
+      en: 'Direct Contact, LinkedIn & References',
     },
     organization: {
       es: 'Disponible para roles de Software, Datos e IA',
@@ -557,24 +586,26 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
     },
     period: { es: 'Cali, Colombia · Remoto / Híbrido', en: 'Cali, Colombia · Remote / Hybrid' },
     summary: {
-      es: 'Canales directos de contacto, descarga de hoja de vida oficial en PDF y tres referencias profesionales verificables en la industria.',
-      en: 'Direct communication channels, official PDF resume download, and three verifiable industry references.',
+      es: 'Redacción directa de correo desde el portafolio, perfil oficial de LinkedIn, descarga de hoja de vida en PDF y tres referencias profesionales verificables en la industria.',
+      en: 'Direct in-app email composer, official LinkedIn profile, PDF resume download, and three verifiable industry references.',
     },
     highlights: {
       es: [
         'Correo electrónico: junior.cantor11@gmail.com · Teléfono: +57 302 211 3532.',
+        'LinkedIn oficial: linkedin.com/in/junior-cantor-arevalo.',
         'Referencia: Anderson Alban Angulo, Software Analyst en Global System Solutions (+57 320 962 2683).',
         'Referencia: Jhonny Esteban Cantor, Implementation Analyst en Double V Partners (+57 320 670 7707).',
         'Referencia: Christian Hoyos Salazar, Front-End Developer en Smarthink Consulting Group (+57 311 705 1904).',
       ],
       en: [
         'Email: junior.cantor11@gmail.com · Phone: +57 302 211 3532.',
+        'Official LinkedIn: linkedin.com/in/junior-cantor-arevalo.',
         'Reference: Anderson Alban Angulo, Software Analyst at Global System Solutions (+57 320 962 2683).',
         'Reference: Jhonny Esteban Cantor, Implementation Analyst at Double V Partners (+57 320 670 7707).',
         'Reference: Christian Hoyos Salazar, Front-End Developer at Smarthink Consulting Group (+57 311 705 1904).',
       ],
     },
-    stack: ['Correo directo', 'GitHub', 'LinkedIn', 'CV PDF'],
+    stack: ['LinkedIn', 'Correo directo', 'GitHub', 'CV PDF'],
     sceneContext: {
       es: 'Atril arquitectónico con lámina impresa de la hoja de vida y baliza direccional de contacto.',
       en: 'Architectural lectern displaying the printed resume plate alongside a copper contact resonator.',
@@ -589,16 +620,24 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'junior.cantor11@gmail.com', en: 'junior.cantor11@gmail.com' },
       },
       {
-        label: { es: 'Teléfono', en: 'Phone' },
-        value: { es: '+57 302 211 3532', en: '+57 302 211 3532' },
+        label: { es: 'LinkedIn', en: 'LinkedIn' },
+        value: { es: '/in/junior-cantor-arevalo', en: '/in/junior-cantor-arevalo' },
       },
     ],
+    focusCameraPosition: [-10.5, 2.75, -9.2],
+    focusCameraTarget: [-10.5, 1.35, -14.5],
     links: [
       {
-        label: { es: 'Escribir correo', en: 'Send email' },
-        href: 'mailto:junior.cantor11@gmail.com?subject=Contacto%20Portafolio%20Web%203D',
+        label: { es: 'Escribir correo', en: 'Write email' },
+        href: '#redactar-correo',
         external: false,
         primary: true,
+        action: 'compose-email',
+      },
+      {
+        label: { es: 'LinkedIn', en: 'LinkedIn' },
+        href: 'https://www.linkedin.com/in/junior-cantor-arevalo/',
+        external: true,
       },
       {
         label: { es: 'Descargar CV (PDF)', en: 'Download resume (PDF)' },

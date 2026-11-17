@@ -1,7 +1,8 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, Mail } from 'lucide-react';
 import {
   getStationById,
   NODE_DETAILS,
+  PROFILE,
   type InteractiveNodeId,
 } from '@/data/portfolioData';
 import { usePortfolioStore } from '@/stores/usePortfolioStore';
@@ -10,6 +11,7 @@ export function BottomTelemetryHUD() {
   const currentSection = usePortfolioStore((s) => s.currentSection);
   const targetSection = usePortfolioStore((s) => s.targetSection);
   const hoveredNodeId = usePortfolioStore((s) => s.hoveredNodeId);
+  const focusedNodeId = usePortfolioStore((s) => s.focusedNodeId);
   const locale = usePortfolioStore((s) => s.locale);
   const stepStation = usePortfolioStore((s) => s.stepStation);
   const selectNode = usePortfolioStore((s) => s.selectNode);
@@ -47,7 +49,7 @@ export function BottomTelemetryHUD() {
             </button>
           </div>
 
-          <div className="min-w-0">
+          <div key={station.id} className="studio-content-swap min-w-0">
             <p className="truncate text-sm font-medium text-[var(--text-primary)]">
               <span className="mr-2 font-mono text-xs text-[var(--accent-primary)]">
                 0{station.index} / 05
@@ -62,7 +64,7 @@ export function BottomTelemetryHUD() {
 
         <div className="flex flex-wrap items-center gap-2">
           {stationNodes.map((node, index) => {
-            const isNodeHovered = hoveredNodeId === node.id;
+            const isNodeHovered = hoveredNodeId === node.id || focusedNodeId === node.id;
             const isPrimaryAction = index === 0;
             return (
               <button
@@ -81,6 +83,32 @@ export function BottomTelemetryHUD() {
               </button>
             );
           })}
+
+          {station.id === 'contacto' && (
+            <>
+              <button
+                type="button"
+                onClick={() => selectNode('contact-terminal', { openComposer: true })}
+                className="inline-flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 text-xs font-medium transition studio-control"
+              >
+                <Mail
+                  className="h-3.5 w-3.5 text-[var(--accent-primary)]"
+                  aria-hidden="true"
+                />
+                <span>{locale === 'es' ? 'Escribir correo' : 'Write email'}</span>
+              </button>
+
+              <a
+                href={PROFILE.linkedinUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 text-xs font-medium transition studio-control"
+              >
+                <span>LinkedIn</span>
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </a>
+            </>
+          )}
         </div>
       </div>
     </footer>
