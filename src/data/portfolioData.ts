@@ -1,3 +1,5 @@
+import { withBase } from '@/utils/assetUrl';
+
 export type Locale = 'es' | 'en';
 
 export type StationId =
@@ -157,7 +159,7 @@ export const PROFILE = {
   },
   githubUrl: 'https://github.com/cantor11',
   linkedinUrl: 'https://www.linkedin.com/in/junior-cantor-arevalo/',
-  cvPath: '/cv/Junior_Cantor_CV.pdf',
+  cvPath: withBase('cv/Junior_Cantor_CV.pdf'),
   summary: {
     es: 'Estudiante de noveno semestre de Ingeniería de Sistemas en la Universidad del Valle. Trabajo en desarrollo de software full-stack, ingeniería de datos con Apache Airflow y Polars, y aplicaciones de inteligencia artificial bajo metodologías ágiles.',
     en: 'Ninth-semester Systems Engineering student at Universidad del Valle. I build full-stack web software, data pipelines with Apache Airflow and Polars, and applied machine learning workflows using agile engineering practices.',
@@ -213,12 +215,12 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Datos, Full-Stack y Web 3D', en: 'Data, Full-Stack & Web 3D' },
       },
     ],
-    focusCameraPosition: [0.3, 2.55, 5.4],
-    focusCameraTarget: [0, 1.25, -0.1],
+    focusCameraPosition: [0, 2.55, 5.2],
+    focusCameraTarget: [0, 1.15, 0],
     links: [
       {
         label: { es: 'Descargar hoja de vida (PDF)', en: 'Download resume (PDF)' },
-        href: '/cv/Junior_Cantor_CV.pdf',
+        href: withBase('cv/Junior_Cantor_CV.pdf'),
         external: true,
         primary: true,
       },
@@ -284,8 +286,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Tableros en Streamlit', en: 'Streamlit dashboards' },
       },
     ],
-    focusCameraPosition: [12.3, 2.85, 3.6],
-    focusCameraTarget: [12.55, 1.35, -2.1],
+    focusCameraPosition: [12.45, 2.6, 3.7],
+    focusCameraTarget: [12.45, 1.2, -2.1],
   },
   'gss-mobile': {
     id: 'gss-mobile',
@@ -335,8 +337,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Pruebas QA y despliegue', en: 'QA testing & release' },
       },
     ],
-    focusCameraPosition: [16.3, 2.75, 3.8],
-    focusCameraTarget: [16.15, 1.35, -1.65],
+    focusCameraPosition: [16.15, 2.55, 3.8],
+    focusCameraTarget: [16.15, 1.18, -1.65],
   },
   'skills-core': {
     id: 'skills-core',
@@ -393,8 +395,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'GitHub Actions y Jenkins', en: 'GitHub Actions & Jenkins' },
       },
     ],
-    focusCameraPosition: [-14.4, 3.1, 4.4],
-    focusCameraTarget: [-14, 1.1, -2],
+    focusCameraPosition: [-14, 2.7, 4.2],
+    focusCameraTarget: [-14, 1.18, -2],
   },
   'certifications-totem': {
     id: 'certifications-totem',
@@ -463,8 +465,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Más de 20 cursos aprobados', en: '20+ completed courses' },
       },
     ],
-    focusCameraPosition: [-13.4, 2.95, 3.8],
-    focusCameraTarget: [-14, 1.55, -2.05],
+    focusCameraPosition: [-14, 2.6, 3.6],
+    focusCameraTarget: [-14, 1.35, -2.05],
   },
   'projects-web3d': {
     id: 'projects-web3d',
@@ -517,8 +519,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: '0 errores gltf-transform', en: '0 gltf-transform errors' },
       },
     ],
-    focusCameraPosition: [9.3, 2.7, -9.2],
-    focusCameraTarget: [9.62, 1.2, -14.46],
+    focusCameraPosition: [10.5, 2.55, -8.8],
+    focusCameraTarget: [10.5, 1.15, -14.5],
     links: [
       {
         label: { es: 'Ver repositorio en GitHub', en: 'View repository on GitHub' },
@@ -577,8 +579,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: 'Docker y CI/CD', en: 'Docker & CI/CD' },
       },
     ],
-    focusCameraPosition: [11.7, 2.75, -9.2],
-    focusCameraTarget: [11.38, 1.2, -14.52],
+    focusCameraPosition: [10.5, 2.55, -8.8],
+    focusCameraTarget: [10.5, 1.15, -14.5],
   },
   'contact-terminal': {
     id: 'contact-terminal',
@@ -637,8 +639,8 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
         value: { es: '/in/junior-cantor-arevalo', en: '/in/junior-cantor-arevalo' },
       },
     ],
-    focusCameraPosition: [-10.5, 2.75, -9.2],
-    focusCameraTarget: [-10.5, 1.35, -14.5],
+    focusCameraPosition: [-10.5, 2.55, -8.9],
+    focusCameraTarget: [-10.5, 1.18, -14.5],
     links: [
       {
         label: { es: 'Escribir correo', en: 'Write email' },
@@ -654,7 +656,7 @@ export const NODE_DETAILS: Record<InteractiveNodeId, NodeDetail> = {
       },
       {
         label: { es: 'Descargar CV (PDF)', en: 'Download resume (PDF)' },
-        href: '/cv/Junior_Cantor_CV.pdf',
+        href: withBase('cv/Junior_Cantor_CV.pdf'),
         external: true,
       },
       {

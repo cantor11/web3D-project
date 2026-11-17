@@ -53,6 +53,7 @@ describe('Portfolio spatial configuration & state machine', () => {
       expect(dist).toBeLessThanOrEqual(15);
       expect(polarDeg).toBeGreaterThanOrEqual(15);
       expect(polarDeg).toBeLessThanOrEqual(85);
+      expect(detail.focusCameraPosition[0]).toBeCloseTo(detail.focusCameraTarget[0], 3);
     }
   });
 
