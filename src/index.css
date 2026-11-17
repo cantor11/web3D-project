@@ -108,12 +108,16 @@ li {
 .studio-surface {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
+  transition: background-color 260ms ease, border-color 260ms ease;
 }
 
 .studio-control {
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-control);
   color: var(--text-primary);
+  transition:
+    border-color 180ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .studio-control:hover {
@@ -124,6 +128,9 @@ li {
   background-color: var(--accent-fill);
   border: 1px solid var(--accent-fill);
   color: var(--on-accent);
+  transition:
+    filter 180ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .studio-cta:hover {
@@ -135,7 +142,7 @@ li {
   border: 1px solid var(--border-control);
   color: var(--text-primary);
   border-radius: 6px;
-  transition: border-color 150ms ease, background-color 150ms ease;
+  transition: border-color 180ms ease, background-color 180ms ease;
 }
 
 .studio-input:hover {
@@ -170,53 +177,85 @@ dialog.studio-dialog::backdrop {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  dialog.studio-dialog:modal {
-    opacity: 0;
-    transform: translateY(10px) scale(0.985);
-    transition:
-      opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
-      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-      overlay 220ms cubic-bezier(0.22, 1, 0.36, 1) allow-discrete,
-      display 220ms cubic-bezier(0.22, 1, 0.36, 1) allow-discrete;
+  dialog.studio-dialog[open]:not([data-closing]) {
+    animation: studio-dialog-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  dialog.studio-dialog:modal:where(:not([data-closing])) {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  dialog.studio-dialog[open]:not([data-closing])::backdrop {
+    animation: studio-backdrop-in 280ms ease-out both;
   }
 
-  dialog.studio-dialog::backdrop {
-    opacity: 0;
-    transition:
-      opacity 220ms cubic-bezier(0.22, 1, 0.36, 1),
-      overlay 220ms cubic-bezier(0.22, 1, 0.36, 1) allow-discrete,
-      display 220ms cubic-bezier(0.22, 1, 0.36, 1) allow-discrete;
+  dialog.studio-dialog[open][data-closing] {
+    animation: studio-dialog-out 240ms cubic-bezier(0.4, 0, 1, 1) forwards;
   }
 
-  dialog.studio-dialog:modal:where(:not([data-closing]))::backdrop {
-    opacity: 1;
-  }
-
-  @starting-style {
-    dialog.studio-dialog:modal:where(:not([data-closing])) {
-      opacity: 0;
-      transform: translateY(10px) scale(0.985);
-    }
-
-    dialog.studio-dialog:modal:where(:not([data-closing]))::backdrop {
-      opacity: 0;
-    }
+  dialog.studio-dialog[open][data-closing]::backdrop {
+    animation: studio-backdrop-out 240ms ease-in forwards;
   }
 
   .studio-content-swap {
-    animation: studio-fade-slide 210ms cubic-bezier(0.22, 1, 0.36, 1);
+    animation: studio-fade-slide 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.studio-dialog[open]:not([data-closing]) {
+    animation: studio-backdrop-in 200ms ease-out both;
+  }
+
+  dialog.studio-dialog[open][data-closing] {
+    animation: studio-backdrop-out 160ms ease-in forwards;
+  }
+
+  .studio-content-swap {
+    animation: studio-backdrop-in 180ms ease-out both;
+  }
+}
+
+@keyframes studio-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes studio-dialog-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+}
+
+@keyframes studio-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes studio-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
 @keyframes studio-fade-slide {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;

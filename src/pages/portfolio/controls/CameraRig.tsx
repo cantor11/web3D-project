@@ -35,9 +35,10 @@ function getResponsiveCameraCoords(
 
 export function CameraRig() {
   const controlsRef = useRef<OrbitControlsImpl>(null);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const tweenRef = useRef<gsap.core.Tween | null>(null);
   const isFirstMount = useRef(true);
-  const prevStationRef = useRef<StationId>('sobre-mi');
+  const lastStationKeyRef = useRef<string>('');
+  const pendingStationGoalRef = useRef<{ id: StationId; requestId: number } | null>(null);
 
   const { camera } = useThree();
   const targetSection = usePortfolioStore((s) => s.targetSection);
@@ -84,184 +85,115 @@ export function CameraRig() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [navigateTo, stepStation]);
 
-  // Station-to-station cinematic flight with adaptive duration and vertical arc
+  // Unified camera flight & sub-node focus controller (prevents effect races)
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
 
+    const stationKey = `${targetSection}:${transitionRequestId}`;
+    const isStationNavigation = stationKey !== lastStationKeyRef.current;
+    lastStationKeyRef.current = stationKey;
+
     const station = getStationById(targetSection);
-    const [tgtX, tgtY, tgtZ] = station.cameraTarget;
-    const [camX, camY, camZ] = getResponsiveCameraCoords(
-      station.cameraPosition,
-      station.cameraTarget,
-    );
+    const focusedDetail = focusedNodeId ? NODE_DETAILS[focusedNodeId] : null;
+    const useFocusCoords =
+      !isStationNavigation &&
+      focusedDetail !== null &&
+      focusedDetail.stationId === station.id;
+
+    const rawCamPos = useFocusCoords
+      ? focusedDetail.focusCameraPosition
+      : station.cameraPosition;
+    const rawTargetPos = useFocusCoords
+      ? focusedDetail.focusCameraTarget
+      : station.cameraTarget;
+
+    const endCamCoords = getResponsiveCameraCoords(rawCamPos, rawTargetPos);
+    const endCam = new THREE.Vector3(...endCamCoords);
+    const endTarget = new THREE.Vector3(...rawTargetPos);
 
     if (isFirstMount.current) {
       isFirstMount.current = false;
-      prevStationRef.current = targetSection;
-      camera.position.set(camX, camY, camZ);
-      controls.target.set(tgtX, tgtY, tgtZ);
+      camera.position.copy(endCam);
+      controls.target.copy(endTarget);
       controls.update();
       completeTransition(targetSection, transitionRequestId);
       return;
     }
 
-    if (timelineRef.current) {
-      timelineRef.current.kill();
-      timelineRef.current = null;
+    const startCam = camera.position.clone();
+    const startTarget = controls.target.clone();
+    const dist = startCam.distanceTo(endCam);
+
+    if (!isStationNavigation && dist < 0.04) {
+      return;
+    }
+
+    if (tweenRef.current) {
+      tweenRef.current.kill();
+      tweenRef.current = null;
     }
 
     const prefersReducedMotion =
       typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-    const dist = Math.hypot(
-      camX - camera.position.x,
-      camY - camera.position.y,
-      camZ - camera.position.z,
-    );
     const duration = prefersReducedMotion
-      ? 0.01
-      : THREE.MathUtils.clamp(0.82 + dist * 0.016, 0.88, 1.28);
-    const arcLiftY = Math.max(camera.position.y, camY) + Math.min(dist * 0.045, 0.95);
+      ? isStationNavigation
+        ? 0.45
+        : 0.28
+      : isStationNavigation
+        ? THREE.MathUtils.clamp(1.25 + dist * 0.02, 1.38, 1.85)
+        : 0.85;
 
-    controls.enabled = false;
-    const activeRequestId = transitionRequestId;
-    const destinationId: StationId = targetSection;
-    prevStationRef.current = targetSection;
+    const arcHeight =
+      !prefersReducedMotion && isStationNavigation && dist > 4
+        ? Math.min(dist * 0.075, 1.35)
+        : 0;
 
-    const tl = gsap.timeline({
+    if (isStationNavigation) {
+      pendingStationGoalRef.current = {
+        id: targetSection,
+        requestId: transitionRequestId,
+      };
+      controls.enabled = false;
+    }
+
+    const progress = { u: 0 };
+    const tween = gsap.to(progress, {
+      u: 1,
+      duration,
+      ease: isStationNavigation ? 'sine.inOut' : 'power2.out',
       onUpdate: () => {
+        const u = progress.u;
+        camera.position.x = THREE.MathUtils.lerp(startCam.x, endCam.x, u);
+        camera.position.z = THREE.MathUtils.lerp(startCam.z, endCam.z, u);
+        camera.position.y =
+          THREE.MathUtils.lerp(startCam.y, endCam.y, u) +
+          Math.sin(u * Math.PI) * arcHeight;
+        controls.target.lerpVectors(startTarget, endTarget, u);
         controls.update();
       },
       onComplete: () => {
         controls.enabled = true;
         controls.update();
-        completeTransition(destinationId, activeRequestId);
+        if (pendingStationGoalRef.current) {
+          const { id, requestId } = pendingStationGoalRef.current;
+          pendingStationGoalRef.current = null;
+          completeTransition(id, requestId);
+        }
       },
       onInterrupt: () => {
         controls.enabled = true;
       },
     });
 
-    tl.to(
-      camera.position,
-      {
-        x: camX,
-        z: camZ,
-        duration,
-        ease: 'power3.inOut',
-      },
-      0,
-    );
-
-    if (!prefersReducedMotion && dist > 4) {
-      tl.to(
-        camera.position,
-        {
-          y: arcLiftY,
-          duration: duration * 0.44,
-          ease: 'power2.out',
-        },
-        0,
-      ).to(
-        camera.position,
-        {
-          y: camY,
-          duration: duration * 0.56,
-          ease: 'power2.inOut',
-        },
-        duration * 0.44,
-      );
-    } else {
-      tl.to(
-        camera.position,
-        {
-          y: camY,
-          duration,
-          ease: 'power3.inOut',
-        },
-        0,
-      );
-    }
-
-    tl.to(
-      controls.target,
-      {
-        x: tgtX,
-        y: tgtY,
-        z: tgtZ,
-        duration,
-        ease: 'power3.inOut',
-      },
-      0,
-    );
-
-    timelineRef.current = tl;
+    tweenRef.current = tween;
 
     return () => {
-      tl.kill();
+      tween.kill();
     };
-  }, [camera, targetSection, transitionRequestId, completeTransition]);
-
-  // Smooth sub-node focus glide when selecting/switching between 3D models or closing modal
-  useEffect(() => {
-    if (isFirstMount.current) return;
-    const controls = controlsRef.current;
-    if (!controls) return;
-
-    const station = getStationById(usePortfolioStore.getState().targetSection);
-    const focusedDetail = focusedNodeId ? NODE_DETAILS[focusedNodeId] : null;
-
-    // Only focus if the focused node belongs to the active station (or relax to station overview)
-    const rawCamPos =
-      focusedDetail && focusedDetail.stationId === station.id
-        ? focusedDetail.focusCameraPosition
-        : station.cameraPosition;
-    const rawTarget =
-      focusedDetail && focusedDetail.stationId === station.id
-        ? focusedDetail.focusCameraTarget
-        : station.cameraTarget;
-
-    const [camX, camY, camZ] = getResponsiveCameraCoords(rawCamPos, rawTarget);
-    const [tgtX, tgtY, tgtZ] = rawTarget;
-
-    const dist = Math.hypot(
-      camX - camera.position.x,
-      camY - camera.position.y,
-      camZ - camera.position.z,
-    );
-    if (dist < 0.04) return;
-
-    if (timelineRef.current) {
-      timelineRef.current.kill();
-      timelineRef.current = null;
-    }
-
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const duration = prefersReducedMotion ? 0.01 : 0.76;
-
-    const tl = gsap.timeline({
-      defaults: { duration, ease: 'power3.out' },
-      onUpdate: () => {
-        controls.update();
-      },
-      onComplete: () => {
-        controls.enabled = true;
-        controls.update();
-      },
-    });
-
-    tl.to(camera.position, { x: camX, y: camY, z: camZ }, 0);
-    tl.to(controls.target, { x: tgtX, y: tgtY, z: tgtZ }, 0);
-    timelineRef.current = tl;
-
-    return () => {
-      tl.kill();
-    };
-  }, [camera, focusedNodeId]);
+  }, [camera, targetSection, transitionRequestId, focusedNodeId, completeTransition]);
 
   useEffect(() => {
     const onResizeReframe = () => {

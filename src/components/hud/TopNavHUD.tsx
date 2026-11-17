@@ -314,10 +314,8 @@ export function TopNavHUD() {
                       type="button"
                       aria-pressed={active}
                       onClick={() => setQualityPreset(opt.id)}
-                      className={`rounded-[6px] px-3 py-1.5 text-xs font-medium transition ${
-                        active
-                          ? 'font-semibold studio-cta'
-                          : 'studio-control text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      className={`rounded-[6px] px-3 py-1.5 text-xs font-medium ${
+                        active ? 'font-semibold studio-cta' : 'studio-control'
                       }`}
                     >
                       {opt.label[locale]}
